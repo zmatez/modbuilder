@@ -1,0 +1,24 @@
+{
+  "name": "modbuilder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "matez",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^13.1.4"
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.5",
+    "electron-titlebar": "^0.0.3",
+    "glob": "^7.1.7",
+    "jquery": "^3.6.0",
+    "jsoneditor": "^9.5.1",
+    "overlayscrollbars": "^1.13.1"
+  }
+}

@@ -1,0 +1,145 @@
+body{
+    display: flex;
+    flex-flow: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+}
+
+.left-box{
+    display: flex;
+    flex-flow: column;
+
+    background-color: var(--color-accent);
+    box-shadow: 0 0 8px 0 var(--color-foreground-p25);
+    width: 30%;
+    height: 100%;
+}
+
+.right-box{
+    width: 70%;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    height: 100%;
+}
+
+.title-bar{
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 20px;
+    width: 70%;
+}
+
+.title-bar img{
+    width: 80px;
+    height: 80px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    filter: drop-shadow(0 0 0.75rem var(--color-foreground-p50));
+}
+
+.title-bar h1{
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-accent-foreground);
+}
+
+.title-bar h4{
+    font-weight: 500;
+    margin: 0;
+    color: var(--color-foreground-p75);
+}
+
+.button-bar{
+    width: 50%;
+    display: flex;
+    flex-flow: column;
+    margin-top: 15px
+}
+
+.button-bar .menu-button{
+    padding: 0 5px;
+    font-size: 14px;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    width: 100%;
+    border-radius: 15px;
+    cursor: pointer;
+    margin: 5px 0;
+    height: 22px;
+
+}
+
+.button-bar .menu-button.disabled{
+    opacity: 50%;
+    cursor: default;
+}
+
+.button-bar .menu-button:hover{
+    background: linear-gradient(125deg, var(--color-accent-2) 10%, var(--color-accent) 90%);
+    color: var(--color-accent-foreground-2)
+}
+
+.button-bar .menu-button.disabled:hover{
+    filter: saturate(10%);
+}
+
+.button-bar .menu-button .menu-button-icon{
+    margin-right: 10px;
+    height: 15px;
+    width: 15px;
+}
+
+/* mods list */
+.mods-list .mods-list-loader, .mods-list .mods-list-nothing{
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.mods-list .mods-list-nothing img{
+    width: 60px;
+    height: 60px;
+}
+
+.mods-list .mods-list-nothing h3{
+    margin: 0;
+}
+
+.mods-list .mods-list-nothing p{
+    margin: 0;
+    font-size: 13px;
+}
+
+.mods-list .mods-list-entry{
+    display: flex;
+    flex-flow: column;
+    padding: 3px 6px;
+}
+
+.mods-list .mods-list-entry .mods-list-title{
+    font-family: Raleway, sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.mods-list .mods-list-entry .mods-list-code{
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--color-accent-foreground-2);
+    white-space: nowrap;
+    overflow-x: auto;
+}
+
+.mods-list .mods-list-entry:hover{
+    background-color: var(--color-accent-hover);
+}
+
+.mods-list .mods-list-entry.selected{
+    background-color: var(--color-accent-selected);
+}

@@ -1,0 +1,80 @@
+body {
+  position: relative;
+  cursor: wait;
+}
+
+.background {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.content {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.content .title-bar {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 20px;
+}
+
+.content .title-bar img {
+  width: 140px;
+  height: 140px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 0 0.75rem var(--color-foreground-p50));
+}
+
+.content .title-bar h1 {
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-background);
+  font-size: 40px;
+  filter: drop-shadow(0 0 0.75rem var(--color-foreground-p25));
+}
+
+.content .title-bar h4 {
+  font-weight: 500;
+  margin: 0;
+  color: var(--color-background-2);
+  font-size: 20px;
+  filter: drop-shadow(0 0 0.5rem var(--color-foreground-p25));
+}
+
+.content .loader-bar {
+  margin-top: 100px;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.content .loader-bar span {
+  color: var(--color-background-2);
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/*# sourceMappingURL=loader.css.map */

@@ -1,0 +1,136 @@
+.ace-jsoneditor .ace_gutter {
+  background: $jse-grey;
+  color: $jse-readonly;
+}
+
+.ace-jsoneditor.ace_editor {
+  font-family: "dejavu sans mono", "droid sans mono", consolas, monaco, "lucida console", "courier new", courier, monospace, sans-serif;
+  line-height: 1.3;
+  background-color: $jse-light-bg;
+  color: $jse-content-color
+}
+
+.ace-jsoneditor .ace_print-margin {
+  width: 1px;
+  background: $jse-white
+}
+
+.ace-jsoneditor .ace_scroller {
+  background-color: $jse-light-bg
+}
+
+.ace-jsoneditor .ace_text-layer {
+  color: $jse-content-color
+}
+
+.ace-jsoneditor .ace_variable {
+  color: $jse-ace-variable
+}
+
+.ace-jsoneditor .ace_cursor {
+  border-left: 2px solid $jse-cursor
+}
+
+.ace-jsoneditor .ace_overwrite-cursors .ace_cursor {
+  border-left: 0px;
+  border-bottom: 1px solid $jse-cursor
+}
+
+.ace-jsoneditor .ace_marker-layer .ace_selection {
+  background: $jse-selection
+}
+
+.ace-jsoneditor.ace_multiselect .ace_selection.ace_start {
+  box-shadow: 0 0 3px 0px #FFFFFF;
+  border-radius: 2px
+}
+
+.ace-jsoneditor .ace_marker-layer .ace_step {
+  background: $jse-step;
+}
+
+.ace-jsoneditor .ace_marker-layer .ace_bracket {
+  margin: -1px 0 0 -1px;
+  border: 1px solid $jse-bracket
+}
+
+.ace-jsoneditor .ace_marker-layer .ace_active-line {
+  background: $jse-active-line
+}
+
+.ace-jsoneditor .ace_gutter-active-line {
+  background-color: $jse-gutter-active-line
+}
+
+.ace-jsoneditor .ace_marker-layer .ace_selected-word {
+  border: 1px solid $jse-selection
+}
+
+.ace-jsoneditor .ace_invisible {
+  color: $jse-ace-invisible
+}
+
+.ace-jsoneditor .ace_keyword,
+.ace-jsoneditor .ace_meta,
+.ace-jsoneditor .ace_support.ace_constant.ace_property-value {
+  color: $jse-string
+}
+
+.ace-jsoneditor .ace_keyword.ace_operator {
+  color: $jse-content-color
+}
+
+.ace-jsoneditor .ace_keyword.ace_other.ace_unit {
+  color: $jse-unit
+}
+
+.ace-jsoneditor .ace_constant.ace_language {
+  color: $jse-boolean
+}
+
+.ace-jsoneditor .ace_constant.ace_numeric {
+  color: $jse-number
+}
+
+.ace-jsoneditor .ace_constant.ace_character.ace_entity {
+  color: $jse-entity
+}
+
+.ace-jsoneditor .ace_invalid {
+  color: $jse-invalid
+}
+
+.ace-jsoneditor .ace_fold {
+  background-color: #AF956F;
+  border-color: #000000
+}
+
+.ace-jsoneditor .ace_storage,
+.ace-jsoneditor .ace_support.ace_class,
+.ace-jsoneditor .ace_support.ace_function,
+.ace-jsoneditor .ace_support.ace_other,
+.ace-jsoneditor .ace_support.ace_type {
+  color: $jse-class
+}
+
+.ace-jsoneditor .ace_string {
+  color: $jse-string
+}
+
+.ace-jsoneditor .ace_comment {
+  color: $jse-comment
+}
+
+.ace-jsoneditor .ace_entity.ace_name.ace_tag,
+.ace-jsoneditor .ace_entity.ace_other.ace_attribute-name {
+  color: $jse-content-color;
+}
+
+.ace-jsoneditor .ace_markup.ace_underline {
+  text-decoration: underline
+}
+
+.ace-jsoneditor .ace_indent-guide{
+  border-right: 1px solid $jse-ace-invisible;
+  background: none;
+}

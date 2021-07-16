@@ -1,0 +1,151 @@
+.tooltip-parent {
+  position: relative;
+}
+
+.tooltip-wrapper {
+  position: fixed;
+  bottom: 0;
+  z-index: 10;
+  pointer-events: none !important;
+}
+
+.tooltip {
+  pointer-events: initial;
+  height: min-content;
+}
+
+.tooltip-appear-left {
+  animation: appear-left 100ms forwards;
+}
+
+.tooltip-appear-right {
+  animation: appear-right 100ms forwards;
+}
+
+@keyframes appear-left {
+  0% {
+    transform: translateX(10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes appear-right {
+  0% {
+    transform: translateX(-10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+/* ---=---=---=---=--- text tooltip */
+.text-tooltip {
+  border: 1px solid var(--color-accent-2);
+  border-radius: 6px;
+  background-color: var(--color-tooltip);
+  padding: 4px 10px;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+  max-height: 250px;
+  font-size: 14px;
+}
+
+/* ---=---=---=---=--- decision tooltip */
+.decision-tooltip-parent {
+  width: min-content;
+}
+
+.decision-tooltip {
+  padding: 7px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  flex-flow: column;
+  align-items: stretch;
+  width: 380px;
+}
+
+.decision-tooltip .decision-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin-right: 10px;
+  display: flex;
+  flex-wrap: nowrap;
+  flex-flow: row;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.decision-tooltip .decision-title img {
+  height: 20px;
+  margin-right: 5px;
+  filter: invert(0.8);
+}
+
+.decision-tooltip .decision-description {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.decision-tooltip .decision-button-inline {
+  display: flex;
+  flex-flow: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  width: 100%;
+  margin-top: 25px;
+}
+
+.decision-tooltip .decision-button-inline .button {
+  background-color: transparent;
+  padding: 0;
+}
+
+.decision-tooltip .decision-button-inline .button .ripple {
+  background-color: rgba(66, 91, 150, 0.5) !important;
+}
+
+.decision-tooltip .decision-button-inline .decision-button-1 button {
+  border: 1px solid var(--color-status-success);
+  color: var(--color-status-success);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 10px;
+}
+
+.decision-tooltip .decision-button-inline .decision-button-2 button {
+  border: 1px solid var(--color-status-fail);
+  color: var(--color-status-fail);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 10px;
+}
+
+.decision-tooltip .center-div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-tooltip form {
+  margin-top: 15px;
+}
+
+/* tooltip utils */
+.tooltip-section {
+  position: absolute;
+  height: 1px;
+  width: calc(100% - 16px);
+  margin: 0 8px;
+  top: 50%;
+  left: 0;
+  right: 0;
+  background-color: var(--color-dark-accent-foreground-2);
+}
+
+/*# sourceMappingURL=tooltips.css.map */

@@ -1,0 +1,135 @@
+.tab-holder{
+    display: flex;
+    position: relative;
+}
+
+.tab-holder.tab-horizontal{
+    flex-flow: row;
+    align-items: center;
+    height: 35px;
+}
+
+
+.tab-holder.tab-vertical{
+    flex-flow: column;
+    align-items: center;
+    height: 35px;
+}
+
+.tab-holder.tab-vertical .tab{
+    justify-content: flex-start;
+}
+
+
+.tab-holder .tab{
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 35px;
+    padding: 0 10px;
+    transition: background-color 0.2s ease-in-out;
+    cursor: default;
+}
+
+.tab-holder .tab:hover{
+    background-color: var(--color-dark-accent-foreground-2);
+}
+
+.tab-holder .tab.new-tab{
+    background-color: var(--color-foreground-p50);
+}
+
+.tab-holder .tab-border{
+    position: absolute;
+
+    background-color: var(--color-accent-2);
+}
+
+.tab-holder .tab-border.tab-down{
+    bottom: 0;
+    height: 3px;
+    transition: width 0.25s cubic-bezier(.79,.14,.15,.86), left 0.25s cubic-bezier(.77,0,.18,1), background-color 0.25s ease-in-out;
+}
+
+.tab-holder .tab-border.tab-up{
+    top: 0;
+    height: 3px;
+    transition: width 0.25s cubic-bezier(.79,.14,.15,.86), left 0.25s cubic-bezier(.77,0,.18,1), background-color 0.25s ease-in-out;
+}
+
+.tab-holder .tab-border.tab-left{
+    left: 0;
+    width: 3px;
+    transition: height 0.25s cubic-bezier(.79,.14,.15,.86), top 0.25s cubic-bezier(.77,0,.18,1), background-color 0.25s ease-in-out;
+}
+
+.tab-holder .tab-border.tab-right{
+    right: 0;
+    width: 3px;
+    transition: height 0.25s cubic-bezier(.79,.14,.15,.86), top 0.25s cubic-bezier(.77,0,.18,1), background-color 0.25s ease-in-out;
+}
+
+
+.tab-holder .tab-add-button{
+    opacity: 50%;
+    height: 20px;
+    width: 20px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.tab-holder .tab-add-button:hover{
+    opacity: 80%;
+}
+
+.tab-holder .tab .tab-close-button{
+    opacity: 50%;
+    height: 15px;
+    width: 15px;
+    cursor: pointer;
+    margin-left: 2px;
+    filter: invert(1);
+}
+
+.tab-holder .tab .tab-close-button:hover{
+    opacity: 80%;
+}
+
+.tab-holder .divider{
+    width: calc(100% - 10px);
+    margin: 10px 5px 0;
+    height: 1px;
+    background-color: #d0d0d0;
+}
+
+/* image tab */
+.tab-holder .tab.image-tab{
+    flex-flow: column;
+    font-size: 10px;
+    height: 50px;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.tab-holder .tab.image-tab img{
+    padding: 3px 0;
+    width: 30px;
+    height: 30px;
+    filter: invert(0.7);
+}
+
+.tab-holder .tab.image-tab.tab-selected img{
+    filter: invert(1);
+}
+
+.tab-element{
+    position: relative;
+}
+
+.tab-holder .tab .tab-small-icon{
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+}

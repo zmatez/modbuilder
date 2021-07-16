@@ -1,0 +1,179 @@
+.form-box .form-entry {
+  border-bottom: 1px solid var(--color-accent-foreground);
+  padding-bottom: 12px !important;
+  margin-bottom: 10px !important;
+}
+
+.form-box .form-entry:last-child {
+  border-bottom: none;
+}
+
+/* buttons */
+.button-container {
+  text-align: center;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.button {
+  position: relative;
+  overflow: hidden;
+  transition: filter 0.25s ease-in-out, background-color 0.2s ease-in-out;
+  color: var(--color-foreground);
+  background-color: var(--color-accent-2);
+  padding: 8px 18px;
+  font-family: "Roboto", sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  outline: 0;
+  border: 0;
+  border-radius: 5px;
+  box-shadow: 0 8px 12px 1px rgba(0, 0, 0, 0.2);
+  margin: 5px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button.button-transparent {
+  color: var(--color-dark-accent-foreground);
+  background-color: transparent;
+}
+
+.button-loading {
+  animation: buttonLoading 0.5s infinite;
+}
+
+.button span:not(.ripple):not(.shadowripple) {
+  z-index: 3;
+}
+
+.button:hover:not(.shadowripple) {
+  filter: brightness(95%);
+  transition: filter 0.25s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.button .ripple {
+  z-index: 2;
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple 600ms linear;
+  background-color: var(--color-accent);
+}
+
+.button.button-transparent .ripple {
+  background-color: var(--color-accent-foreground);
+}
+
+.button .shadowripple {
+  z-index: 1;
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: shadow-ripple 1000ms linear;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+@keyframes shadow-ripple {
+  to {
+    transform: scale(4);
+  }
+}
+/* icon buttons */
+.icon-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: min-content;
+  height: min-content;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.icon-button-container:hover {
+  background-color: var(--color-accent-foreground);
+}
+
+.icon-button {
+  width: 25px;
+  height: 25px;
+  margin: 5px;
+}
+
+/* form field */
+.form-field-container {
+  display: flex;
+  flex-flow: column;
+  margin: 5px;
+  padding: 5px;
+}
+
+.form-field-container .form-field-title {
+  font-family: "Raleway", sans-serif;
+  margin: 0 5px 5px;
+  font-weight: 800;
+  font-size: 15px;
+  text-transform: uppercase;
+  color: var(--color-accent-contrast);
+}
+
+.form-field-container .form-field-description {
+  font-family: "Poppins", sans-serif;
+  margin: 0 5px 5px;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--color-accent-contrast);
+}
+
+.form-field-container .form-field {
+  outline: none;
+  border: 1px solid var(--color-accent-foreground-2);
+  border-radius: 4px;
+  height: 30px;
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  transition: border-color 0.2s ease-in-out;
+  flex-grow: 1;
+  background-color: var(--color-dark-accent);
+  color: var(--color-foreground);
+  padding: 0 4px;
+}
+
+.form-field-container .form-field:read-only {
+  cursor: default;
+  font-style: italic;
+}
+
+.form-field-container .form-field:hover {
+  border-color: var(--color-accent-2);
+}
+
+.form-field-container .form-field-title ~ .form-field-container .form-field:active {
+  color: var(--color-accent-2);
+}
+
+/* form field button */
+.form-field-button-container .button-container {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.form-field-button-container .form-field-button-holder {
+  display: flex;
+  flex-flow: row;
+  justify-content: stretch;
+  align-items: center;
+}
+
+/*# sourceMappingURL=forms.css.map */

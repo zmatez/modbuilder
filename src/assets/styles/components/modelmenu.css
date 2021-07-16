@@ -1,0 +1,104 @@
+.model-menu {
+  display: flex;
+  flex-flow: column;
+}
+
+.model-menu .model-visual {
+  display: flex;
+  flex-flow: column;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background-color: var(--color-background-2);
+  margin: 5px 0;
+}
+
+.model-menu .model-visual .model-name {
+  font-family: Raleway, sans-serif;
+  font-size: 18px;
+  color: var(--color-foreground);
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
+.model-menu .model-visual .model-name .model-img {
+  width: 18px;
+  height: 18px;
+  margin-right: 5px;
+}
+
+.model-menu .model-visual .model-name .model-count {
+  font-family: Poppins, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-foreground-p75);
+  margin-left: 8px;
+}
+
+.model-menu .model-visual .model-name .invalid {
+  width: 15px;
+  height: 15px;
+  margin-left: auto;
+}
+
+.model-menu .model-visual .model-section {
+  display: flex;
+  flex-flow: column;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.model-menu .model-visual .model-section .section-title {
+  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-foreground-p50);
+  margin: 0;
+}
+
+.model-menu .model-visual .model-section .model-info {
+  margin: 0 5px;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  position: relative;
+  word-wrap: anywhere;
+}
+
+.model-menu .model-visual .model-section .icon-button-container {
+  position: absolute;
+  right: 5px;
+}
+
+.model-menu .model-visual .model-section .icon-button-container img {
+  filter: invert(0.8);
+}
+
+/* texture */
+.model-menu .model-visual .texture-list {
+  display: flex;
+  flex-flow: row;
+  padding: 5px;
+}
+
+.model-menu .model-visual .texture-holder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  gap: 5px;
+}
+
+.model-menu .model-visual .texture {
+  border-radius: 8px;
+  border: 2px solid var(--color-accent-2);
+  margin: 5px;
+  width: 50px;
+  height: 50px;
+  background-color: var(--color-background-total);
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/*# sourceMappingURL=modelmenu.css.map */

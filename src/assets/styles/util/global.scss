@@ -1,0 +1,267 @@
+@import "../components/forms.scss";
+@import "../components/tooltips.scss";
+@import "../components/tabpane.scss";
+@import "../components/fileexplorer.scss";
+@import "../../../../node_modules/overlayscrollbars/css/OverlayScrollbars.min.css";
+@import "../components/jsoneditor/reset";
+@import "../components/jsoneditor/variables";
+@import "../components/jsoneditor/autocomplete";
+@import "../components/jsoneditor/contextmenu";
+@import "../components/jsoneditor/editor";
+@import "../components/jsoneditor/menu";
+@import "../components/jsoneditor/navigationbar";
+@import "../components/jsoneditor/searchbox";
+@import "../components/jsoneditor/statusbar";
+@import "../components/jsoneditor/treepath";
+@import "../components/jsoneditor/selectr";
+@import "../components/jsoneditor/ace";
+
+:root {
+    --color-background-total: #000000;
+    --color-background: #36393F;
+    --color-background-2: #2F3136;
+    --color-foreground: #ffffff;
+    --color-foreground-2: #8e9297;
+    --color-background-p75: rgba(0, 0, 0, 0.75);
+    --color-background-p50: rgba(0, 0, 0, 0.5);
+    --color-background-p25: rgba(0, 0, 0, 0.25);
+    --color-background-p10: rgba(0, 0, 0, 0.1);
+    --color-foreground-p75: rgba(255, 255, 255, 0.75);
+    --color-foreground-p50: rgba(255, 255, 255, 0.5);
+    --color-foreground-p25: rgba(255, 255, 255, 0.25);
+    --color-foreground-p10: rgba(255, 255, 255, 0.1);
+
+
+    --color-accent: #fec051;
+    --color-accent-2: #ff8967;
+    --color-accent-foreground: #ffe2b8;
+    --color-accent-foreground-2: #2d212b;
+    --color-accent-foreground-3: #754834;
+    --color-accent-foreground-4: #f5f5f5;
+    --color-accent-contrast: #a54835;
+    --color-accent-contrast-2: #43323f;
+    --color-accent-hover: rgba(255, 226, 184, 0.3);
+    --color-accent-selected: rgba(255, 137, 103, 0.5);
+    --color-dark-accent: #40444B;
+    --color-dark-accent-2: #2a3034;
+    --color-superdark: #212326;
+    --color-dark-accent-foreground: #ffe2b8;
+    --color-dark-accent-foreground-2: #512446;
+    --color-dark-accent-contrast: #3b3232;
+
+    --color-tooltip: #25292b;
+
+    --color-status-success: #7dd480;
+    --color-status-success-dark: #226622;
+    --color-status-success-transparent: rgba(125,212,128,0.4);
+    --color-status-fail: #d47d7d;
+    --color-status-fail-dark: #6e2525;
+    --color-status-fail-transparent: rgba(212,125,125,0.4);
+}
+
+html {
+    box-sizing: border-box;
+    height: 100%;
+}
+
+body {
+    height: 100%;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: var(--color-accent-hover);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent-contrast);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: var(--color-accent-2);
+}
+
+@font-face {
+    font-family: "Poppins";
+    src: url("../../fonts/poppins-regular.ttf");
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: "Poppins";
+    src: url("../../fonts/poppins-medium.ttf");
+    font-weight: 600;
+}
+
+@font-face {
+    font-family: "Poppins";
+    src: url("../../fonts/poppins-semibold.ttf");
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: "Raleway";
+    src: url("../../fonts/raleway-medium.ttf");
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: "Raleway";
+    src: url("../../fonts/raleway-semibold.ttf");
+    font-weight: 600;
+}
+
+@font-face {
+    font-family: "Raleway";
+    src: url("../../fonts/raleway-bold.ttf");
+    font-weight: 700;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+
+    font-family: "Poppins", serif;
+    font-weight: 500;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+}
+
+h1, h2, h3, h4, h5 {
+    font-family: "Raleway", serif;
+}
+
+/* global things */
+.titlebox {
+    border-radius: 4px;
+    background-color: var(--color-accent-foreground);
+    color: var(--color-accent-foreground-2);
+    font-family: Poppins, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 8px;
+}
+
+.center-flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.title-holder{
+    position: relative;
+    display: flex;
+    flex-flow: row;
+}
+
+.title-holder .title{
+    margin: 0;
+}
+
+.title-holder .line{
+    width: 100%;
+
+}
+
+/* spinners */
+.spinner {
+    animation: rotator 1.4s linear infinite;
+}
+
+.spinner-wrapper {
+    padding: 5px;
+}
+
+.spinner-wrapper.nopadding {
+    padding: 0 !important;
+}
+
+@keyframes rotator {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(270deg);
+    }
+}
+
+.spinner .path {
+    stroke-dasharray: 187;
+    stroke-dashoffset: 0;
+    transform-origin: center;
+    animation: dash 1.4s ease-in-out infinite, colors 5.6s ease-in-out infinite;
+}
+
+.spinner-wrapper.dark .spinner .path {
+    animation: dash 1.4s ease-in-out infinite, colors-dark 5.6s ease-in-out infinite !important;
+}
+
+@keyframes colors {
+    0% {
+        stroke: var(--color-accent);
+    }
+    50% {
+        stroke: var(--color-accent-2);
+    }
+    100% {
+        stroke: var(--color-accent);
+    }
+}
+
+@keyframes colors-dark {
+    0% {
+        stroke: var(--color-accent-foreground-3);
+    }
+    50% {
+        stroke: var(--color-accent-foreground-2);
+    }
+    100% {
+        stroke: var(--color-accent-foreground-3);
+    }
+}
+
+@keyframes dash {
+    0% {
+        stroke-dashoffset: 187;
+    }
+    50% {
+        stroke-dashoffset: 46.75;
+        transform: rotate(135deg);
+    }
+    100% {
+        stroke-dashoffset: 187;
+        transform: rotate(450deg);
+    }
+}
+
+@keyframes fadein {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 100%;
+    }
+}
+
+@keyframes fadeout {
+    0% {
+        opacity: 100%;
+    }
+    100% {
+        opacity: 0;
+    }
+}

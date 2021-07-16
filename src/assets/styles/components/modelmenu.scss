@@ -1,0 +1,171 @@
+.model-menu, .texture-usage-menu, .item-parent-section{
+    display: flex;
+    flex-flow: column;
+    .model-visual {
+        display: flex;
+        flex-flow: column;
+        padding: 8px 12px;
+        border-radius: 10px;
+        background-color: var(--color-background-2);
+        margin: 5px 0;
+        border: 2px solid transparent;
+        transition: border-color 0.2s ease-in-out;
+
+        .model-name {
+            font-family: Raleway, sans-serif;
+            font-size: 18px;
+            color: var(--color-foreground);
+            display: flex;
+            flex-flow: row;
+            align-items: center;
+            .model-img {
+                width: 18px;
+                height: 18px;
+                margin-right: 5px;
+            }
+            .model-count {
+                font-family: Poppins, sans-serif;
+                font-size: 15px;
+                font-weight: 600;
+                color: var(--color-foreground-p75);
+                margin-left: 8px;
+            }
+            .invalid {
+                width: 15px;
+                height: 15px;
+                margin-left: auto;
+            }
+        }
+        .model-section {
+            display: flex;
+            flex-flow: column;
+            font-size: 13px;
+            margin: 4px 0;
+
+            .section-title {
+                text-transform: uppercase;
+                font-size: 13px;
+                font-weight: 700;
+                color: var(--color-foreground-p50);
+                margin: 0;
+            }
+            .model-info {
+                margin: 0 5px;
+                display: flex;
+                flex-flow: row;
+                align-items: center;
+                position: relative;
+                word-wrap: anywhere;
+                color: var(--color-foreground-p25);
+            }
+            .icon-button-container {
+                position: absolute;
+                right: 5px;
+                img {
+                    filter: invert(0.8);
+                }
+            }
+        }
+
+
+        &:hover{
+            border-color: var(--color-dark-accent-foreground-2);
+            transition: border-color 0.2s ease-in-out;
+        }
+    }
+}
+
+.texture-list {
+    display: flex;
+    flex-flow: row;
+    padding: 5px;
+    .texture-holder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        gap: 5px;
+
+        .texture {
+            border-radius: 8px;
+            border: 2px solid var(--color-accent-2);
+            margin: 5px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--color-background-total);
+            object-fit: contain;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        &.highlight .texture{
+            border-color: var(--color-status-success);
+        }
+
+        &.overridden .texture{
+            filter: saturate(0.2);
+        }
+    }
+
+}
+
+.texture-usage-menu {
+    .separator{
+        color: var(--color-foreground);
+        background-color: var(--color-background-2);
+        font-family: Raleway, sans-serif;
+        font-size: 20px;
+        font-weight: 800;
+        padding: 6px 12px;
+        border-radius: 10px;
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        margin: 5px 0;
+        position: relative;
+
+        .count {
+            font-family: Poppins, sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--color-foreground-p75);
+            margin: 8px;
+            position: absolute;
+            right: 0;
+        }
+
+        img{
+            width: 20px;
+            height: 20px;
+            margin-right: 6px;
+            filter: invert(26%) sepia(66%) saturate(2651%) hue-rotate(327deg) brightness(78%) contrast(100%)
+        }
+    }
+}
+
+.parent-texture-menu{
+    padding: 8px 12px;
+    border-radius: 10px;
+    background-color: var(--color-background-2);
+    margin: 5px 0;
+    font-size: 15px;
+    color: var(--color-foreground-p50);
+
+    .parent-texture-level{
+        .model-name{
+            font-family: Raleway, sans-serif;
+            font-size: 18px;
+            color: var(--color-foreground);
+            display: flex;
+            flex-flow: row;
+            align-items: center;
+
+            .model-img {
+                width: 18px;
+                height: 18px;
+                margin-right: 5px;
+            }
+        }
+
+    }
+}
