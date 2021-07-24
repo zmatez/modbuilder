@@ -1,10 +1,9 @@
 const ITab = require('./itab.js');
 const tabpane = require('../../../../gui/tabpane');
-const contextmenu = require('../../../../gui/context-menu');
 const explorer = require('../../../../gui/fileexplorer');
 const modelmenu = require('../modelmenu');
 
-class TabBlocks extends ITab{
+class TabTextures extends ITab{
     /**
      * @type FileExplorer
      */
@@ -23,7 +22,7 @@ class TabBlocks extends ITab{
     openCallback;
 
     createTab() {
-        this.tab = new tabpane.AnimatedImageTab('Blocks','blocks_gray.svg','block.svg','tab-editor','tab-blocks');
+        this.tab = new tabpane.AnimatedImageTab('Textures','textures_gray.svg','texture.svg','tab-editor','tab-textures');
         this.element = this.tab.element;
     }
 
@@ -66,20 +65,20 @@ class TabBlocks extends ITab{
         this.contentPane.pop();
 
         this.openCallback = (file) => {
-            if(file instanceof explorer.BlockFile){
+            if(file instanceof explorer.TextureFile){
                 /**
                  * @type {?ElementTab}
                  */
                 let existingTab = null;
                 for (let tab of this.contentPane.tabs) {
-                    if(tab instanceof BlockTab && tab.blockFile === file){
+                    if(tab instanceof TextureTab && tab.textureFile === file){
                         existingTab = tab;
                         break
                     }
                 }
 
                 if(existingTab == null){
-                    let tab = new BlockTab(file);
+                    let tab = new TextureTab(file);
                     this.contentPane.addTab(tab);
                     tab.clicked()
                 }else{
@@ -93,24 +92,11 @@ class TabBlocks extends ITab{
         utils.addChild(this.element, leftBox, rightBox);
 
         // ! --------------------------------------------------------------------
-        this.controller.contentPanes.block = this.contentPane;
-        this.controller.tabExplorers.block = this.tabExplorer;
-        this.controller.explorers.block = this.explorer;
-        /**
-         * @type {{render: function(FileExplorer), open: Function}}
-         */
-        this.controller.callbacks.block = {
-            open: this.openCallback,
-            render: (fx) => {
-                for (let file of fx.allChilds) {
-                    let contextMenu = new contextmenu.ContextMenu(file.element);
-                    contextMenu.setup((items) => {
-                        items.push(new contextmenu.ButtonContextItem("Delete", () => {
-
-                        }))
-                    });
-                }
-            }
+        this.controller.contentPanes.texture = this.contentPane;
+        this.controller.tabExplorers.texture = this.tabExplorer;
+        this.controller.explorers.texture = this.explorer;
+        this.controller.callbacks.texture = {
+            open: this.openCallback
         }
     }
 
@@ -189,33 +175,33 @@ class TabBlocks extends ITab{
     }
 }
 
-module.exports.TabBlocks = TabBlocks;
+module.exports.TabTextures = TabTextures;
 
-class BlockTab extends tabpane.ElementTab{
+class TextureTab extends tabpane.ElementTab{
     /**
-     * @type BlockFile
+     * @type TextureFile
      */
-    blockFile;
-
-    /**
-     * @type Block
-     */
-    block;
+    textureFile;
 
     /**
-     * @param blockFile {BlockFile}
+     * @type Texture
      */
-    constructor(blockFile) {
-        super(blockFile.getName(), blockFile.getIcon(), '45D32C');
-        this.blockFile = blockFile;
-        this.block = blockFile.getBlock();
+    texture;
+
+    /**
+     * @param textureFile {TextureFile}
+     */
+    constructor(textureFile) {
+        super(textureFile.getName(), textureFile.getIcon(), '45D32C');
+        this.textureFile = textureFile;
+        this.texture = textureFile.getTexture();
     }
 
     make(content) {
         content.classList.add('element-tab-content');
         // ? LEFT
         let contentLeft = document.createElement('div');
-        contentLeft.classList.add("element-content-left", "element-content-tabs");
+        contentLeft.classList.add("element-content-left");
 
         {
             let section = document.createElement('div');
@@ -227,11 +213,9 @@ class BlockTab extends tabpane.ElementTab{
 
             let form = new Form(section);
             form.push();
-            let name = new forms.FormField('name', "Codename");
-            name.setValue(this.blockFile.getName());
-            let displayName = new forms.FormField('display_name','Display Name');//todo display name
-            displayName.bottomHTML = "More languages are available in Languages tab.";
-            form.addEntries(name, displayName);
+            let name = new forms.FormField('name', "Name");
+            name.setValue(this.textureFile.getName());
+            form.addEntry(name);
             form.pop()
 
             utils.addChild(contentLeft, section);
@@ -241,45 +225,13 @@ class BlockTab extends tabpane.ElementTab{
             section.classList.add("content-section");
             // * HEADER
             let header = document.createElement('h2');
-            header.innerHTML = "Models";
+            header.innerHTML = "Usages";
             utils.addChild(section, header);
 
-            let modelList = new modelmenu.ModelBlockList(section, this.block);
-            modelList.construct();
-
-            utils.addChild(contentLeft, section);
-        }
-        {
-            let section = document.createElement('div');
-            section.classList.add("content-section","json-section");
-            // * HEADER
-            let header = document.createElement('h2');
-            header.innerHTML = "Blockstate";
-            utils.addChild(section, header);
-
-            const json = require('jsoneditor')
-
-            /**
-             * @type JSONEditor
-             */
-            let editor = new json(section,{
-                "modes": ['view'],
-                "autocomplete": {
-                    applyTo: ['value'],
-                    filter: "contain",
-                    trigger: "focus",
-                    getOptions: function (text, path) {
-                        if(path[path.length-1] === 'model'){
-                            let suggestions = [];
-                            for (let [key, model] of mod.modRegistry.blockModels) {
-                                suggestions.push(key);
-                            }
-                            return suggestions;
-                        }
-                        return [];
-                    }
-                }
-            }, JSON.parse(this.block.json));
+            let textureUsageList = new modelmenu.TextureUsageList(section, this.texture);
+            setTimeout(() => {
+                textureUsageList.construct();
+            }, 0)
 
             utils.addChild(contentLeft, section);
         }
@@ -288,24 +240,45 @@ class BlockTab extends tabpane.ElementTab{
             section.classList.add("content-section");
             // * HEADER
             let header = document.createElement('h2');
-            header.innerHTML = "Dependencies";
+            header.innerHTML = "Animation";
             utils.addChild(section, header);
+
+
 
             utils.addChild(contentLeft, section);
         }
 
         // ? RIGHT
         let contentRight = document.createElement('div');
-        contentRight.classList.add("element-content-right");
+        contentRight.classList.add("element-content-right",'texture-content-right');
+
         let header = document.createElement('div');
         header.classList.add("right-header");
         let headerText = document.createElement('h2');
-        headerText.innerHTML = "Block View";
+        headerText.innerHTML = "Texture View";
         utils.addChild(header, headerText);
-        let modelContent = document.createElement('div');
-        modelContent.classList.add("model-content");
+        let textureContent = document.createElement('div');
+        textureContent.classList.add("texture-content");
+        let textureImg = document.createElement('img');
+        textureImg.src = this.texture.path;
+        utils.addChild(textureContent, textureImg);
+        let textureTools = document.createElement('div');
+        textureTools.classList.add("texture-tools");
+        {
+            // * tools
+            let toolOpen = new forms.IconButton('Open in explorer', 'open.svg',() => {
 
-        utils.addChild(contentRight, header, modelContent);
+            });
+            toolOpen.addTo(textureTools);
+            let toolEdit = new forms.IconButton('Edit', 'edit.svg',() => {
+
+            });
+            toolEdit.addTo(textureTools);
+
+        }
+
+        utils.addChild(contentRight, header, textureContent, textureTools);
+
 
         //
         utils.addChild(content, contentLeft, contentRight);
@@ -313,11 +286,11 @@ class BlockTab extends tabpane.ElementTab{
 
     onOpen() {
         super.onOpen();
-        this.blockFile.open();
+        this.textureFile.open();
     }
 
     onClose() {
         super.onClose();
-        this.blockFile.close();
+        this.textureFile.close();
     }
 }

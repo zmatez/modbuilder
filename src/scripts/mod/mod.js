@@ -44,6 +44,9 @@ class IMod{
     get assetsPath() {
         return this.path + "/assets/" + this.codename + "/";
     }
+    get dataPath() {
+        return this.path + "/data/" + this.codename + "/";
+    }
     get blockStatePath() {
         return this.assetsPath + "blockstates/";
     }

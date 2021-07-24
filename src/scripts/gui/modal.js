@@ -124,7 +124,7 @@ class ModalController{
     }
 
     open(){
-        let preload = path.join(__dirname, '../renderer/modals/modal_preload.js');
+        let preload = path.join(__dirname, '../process/renderer/modals/modal_preload.js');
         this.window = new BrowserWindow({
             webPreferences: {
                 preload: preload,
@@ -143,7 +143,7 @@ class ModalController{
         });
 
         this.window.center();
-        this.window.loadFile('src/scripts/renderer/modals/modal.html');
+        this.window.loadFile('src/scripts/process/renderer/modals/modal.html');
         this.window.show()
 
         this.window.webContents.on('did-finish-load', () => {

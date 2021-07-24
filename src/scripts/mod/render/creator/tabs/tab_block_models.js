@@ -1,10 +1,9 @@
 const ITab = require('./itab.js');
 const tabpane = require('../../../../gui/tabpane');
-const contextmenu = require('../../../../gui/context-menu');
 const explorer = require('../../../../gui/fileexplorer');
 const modelmenu = require('../modelmenu');
 
-class TabBlocks extends ITab{
+class TabBlockModels extends ITab{
     /**
      * @type FileExplorer
      */
@@ -23,7 +22,7 @@ class TabBlocks extends ITab{
     openCallback;
 
     createTab() {
-        this.tab = new tabpane.AnimatedImageTab('Blocks','blocks_gray.svg','block.svg','tab-editor','tab-blocks');
+        this.tab = new tabpane.AnimatedImageTab('Models','models_gray.svg','model.svg','tab-editor','tab-block-models');
         this.element = this.tab.element;
     }
 
@@ -66,20 +65,20 @@ class TabBlocks extends ITab{
         this.contentPane.pop();
 
         this.openCallback = (file) => {
-            if(file instanceof explorer.BlockFile){
+            if(file instanceof explorer.BlockModelFile){
                 /**
                  * @type {?ElementTab}
                  */
                 let existingTab = null;
                 for (let tab of this.contentPane.tabs) {
-                    if(tab instanceof BlockTab && tab.blockFile === file){
+                    if(tab instanceof BlockModelTab && tab.blockModelFile === file){
                         existingTab = tab;
                         break
                     }
                 }
 
                 if(existingTab == null){
-                    let tab = new BlockTab(file);
+                    let tab = new BlockModelTab(file);
                     this.contentPane.addTab(tab);
                     tab.clicked()
                 }else{
@@ -93,24 +92,11 @@ class TabBlocks extends ITab{
         utils.addChild(this.element, leftBox, rightBox);
 
         // ! --------------------------------------------------------------------
-        this.controller.contentPanes.block = this.contentPane;
-        this.controller.tabExplorers.block = this.tabExplorer;
-        this.controller.explorers.block = this.explorer;
-        /**
-         * @type {{render: function(FileExplorer), open: Function}}
-         */
-        this.controller.callbacks.block = {
-            open: this.openCallback,
-            render: (fx) => {
-                for (let file of fx.allChilds) {
-                    let contextMenu = new contextmenu.ContextMenu(file.element);
-                    contextMenu.setup((items) => {
-                        items.push(new contextmenu.ButtonContextItem("Delete", () => {
-
-                        }))
-                    });
-                }
-            }
+        this.controller.contentPanes.blockModel = this.contentPane;
+        this.controller.tabExplorers.blockModel = this.tabExplorer;
+        this.controller.explorers.blockModel = this.explorer;
+        this.controller.callbacks.blockModel = {
+            open: this.openCallback
         }
     }
 
@@ -189,109 +175,102 @@ class TabBlocks extends ITab{
     }
 }
 
-module.exports.TabBlocks = TabBlocks;
+module.exports.TabBlockModels = TabBlockModels;
 
-class BlockTab extends tabpane.ElementTab{
+class BlockModelTab extends tabpane.ElementTab{
     /**
-     * @type BlockFile
+     * @type BlockModelFile
      */
-    blockFile;
-
-    /**
-     * @type Block
-     */
-    block;
+    blockModelFile;
 
     /**
-     * @param blockFile {BlockFile}
+     * @type BlockModel
      */
-    constructor(blockFile) {
-        super(blockFile.getName(), blockFile.getIcon(), '45D32C');
-        this.blockFile = blockFile;
-        this.block = blockFile.getBlock();
+    blockModel;
+
+    /**
+     * @param blockModelFile {BlockModelFile}
+     */
+    constructor(blockModelFile) {
+        super(blockModelFile.getName(), blockModelFile.getIcon(), '45D32C');
+        this.blockModelFile = blockModelFile;
+        this.blockModel = blockModelFile.getBlockModel();
     }
 
     make(content) {
         content.classList.add('element-tab-content');
         // ? LEFT
         let contentLeft = document.createElement('div');
-        contentLeft.classList.add("element-content-left", "element-content-tabs");
+        contentLeft.classList.add("element-content-left");
 
         {
-            let section = document.createElement('div');
-            section.classList.add("content-section");
-            // * HEADER
-            let header = document.createElement('h2');
-            header.innerHTML = "Properties";
-            utils.addChild(section, header);
-
-            let form = new Form(section);
-            form.push();
-            let name = new forms.FormField('name', "Codename");
-            name.setValue(this.blockFile.getName());
-            let displayName = new forms.FormField('display_name','Display Name');//todo display name
-            displayName.bottomHTML = "More languages are available in Languages tab.";
-            form.addEntries(name, displayName);
-            form.pop()
-
-            utils.addChild(contentLeft, section);
+            modutils.createRegistrySection('Properties', section => {
+                let holder = document.createElement('div');
+                holder.classList.add('property-section');
+                modutils.createPropertySection('ID',(content) => {
+                    content.innerText = this.blockModel.location.location;
+                    content.style.cursor = 'pointer';
+                    utils.onClick(content, () => {
+                        utils.copyToClipboard(this.blockModel.location.location, content, 'under');
+                    })
+                }, holder);
+                utils.addChild(section, holder)
+            }, contentLeft);
         }
         {
-            let section = document.createElement('div');
-            section.classList.add("content-section");
-            // * HEADER
-            let header = document.createElement('h2');
-            header.innerHTML = "Models";
-            utils.addChild(section, header);
-
-            let modelList = new modelmenu.ModelBlockList(section, this.block);
-            modelList.construct();
-
-            utils.addChild(contentLeft, section);
+            modutils.createRegistrySection('Modify', section => {
+                let form = new Form(section);
+                form.push();
+                let name = new forms.FormField('name', "Codename");
+                name.setValue(this.blockModelFile.getName());
+                form.addEntry(name);
+                form.pop()
+            }, contentLeft);
         }
         {
-            let section = document.createElement('div');
-            section.classList.add("content-section","json-section");
-            // * HEADER
-            let header = document.createElement('h2');
-            header.innerHTML = "Blockstate";
-            utils.addChild(section, header);
+            modutils.createRegistrySection('Textures', section => {
+                let texturesList = document.createElement('div');
+                texturesList.classList.add("info-textures", 'texture-list');
 
-            const json = require('jsoneditor')
-
-            /**
-             * @type JSONEditor
-             */
-            let editor = new json(section,{
-                "modes": ['view'],
-                "autocomplete": {
-                    applyTo: ['value'],
-                    filter: "contain",
-                    trigger: "focus",
-                    getOptions: function (text, path) {
-                        if(path[path.length-1] === 'model'){
-                            let suggestions = [];
-                            for (let [key, model] of mod.modRegistry.blockModels) {
-                                suggestions.push(key);
-                            }
-                            return suggestions;
+                // ? TEXTURES
+                /**
+                 * @type {{texture: Texture, count: number}[]}
+                 */
+                let textures = [];
+                for (let texture of this.blockModel.textures) {
+                    let regTexture = mod.modRegistry.getTexture(texture.location);
+                    let contains = false;
+                    for (let tex of textures) {
+                        if (tex.texture === regTexture) {
+                            tex.count++;
+                            contains = true;
+                            break;
                         }
-                        return [];
+                    }
+
+                    if (!contains) {
+                        textures.push({
+                            texture: regTexture,
+                            count: 1
+                        })
                     }
                 }
-            }, JSON.parse(this.block.json));
 
-            utils.addChild(contentLeft, section);
+                for (let texture of textures) {
+                    let visual = new modelmenu.TextureVisual(texture.texture, texture.count);
+                    let el = visual.construct();
+                    utils.addChild(texturesList, el);
+                }
+                utils.addChild(section, texturesList);
+            }, contentLeft);
         }
         {
-            let section = document.createElement('div');
-            section.classList.add("content-section");
-            // * HEADER
-            let header = document.createElement('h2');
-            header.innerHTML = "Dependencies";
-            utils.addChild(section, header);
-
-            utils.addChild(contentLeft, section);
+            modutils.createRegistrySection('Usages', section => {
+                let modelUsageList = new modelmenu.ModelUsageList(section, this.blockModel);
+                setTimeout(() => {
+                    modelUsageList.construct();
+                }, 0)
+            }, contentLeft);
         }
 
         // ? RIGHT
@@ -300,7 +279,7 @@ class BlockTab extends tabpane.ElementTab{
         let header = document.createElement('div');
         header.classList.add("right-header");
         let headerText = document.createElement('h2');
-        headerText.innerHTML = "Block View";
+        headerText.innerHTML = "Model View";
         utils.addChild(header, headerText);
         let modelContent = document.createElement('div');
         modelContent.classList.add("model-content");
@@ -313,11 +292,12 @@ class BlockTab extends tabpane.ElementTab{
 
     onOpen() {
         super.onOpen();
-        this.blockFile.open();
+        this.blockModelFile.open();
+        console.log("Open: " + this.blockModel.location.location)
     }
 
     onClose() {
         super.onClose();
-        this.blockFile.close();
+        this.blockModelFile.close();
     }
 }

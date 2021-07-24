@@ -6,6 +6,8 @@ global.fs = fs;
 global.dialog = dialog;
 global.ipc = ipcMain;
 
+//app.disableHardwareAcceleration();
+
 global.startTimeout = 100; //<------------------------------------------------------------------ CHANGE THIS IN PRODUCTION
 includeAll();
 

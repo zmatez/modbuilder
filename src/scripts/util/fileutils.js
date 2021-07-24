@@ -76,9 +76,14 @@ class FileUtils{
     }
 
     /**
+     * @param folderName {string} e.g 'textures'
+     * @param fileType {string} e.g 'texture'
+     * @param registry {Map<string, IRegistryEntry>}
+     * @param path {"assets", "data"}
+     * @param ignoreFolders {...number} folders to ignore
      * @return AbstractFileExplorer
      */
-    static getTextureList(){
+    static getResourceList(folderName, fileType, registry, path = 'assets', ...ignoreFolders){
         const e = require('../gui/fileexplorer');
         let explorer = new e.AbstractFileExplorer();
 
@@ -87,66 +92,68 @@ class FileUtils{
          */
         let folders = {};
 
-        for (let [key, texture] of mod.modRegistry.textures) {
-            let file = new e.File(texture.name, texture.path)
+        for (let [key, entry] of registry) {
+            let file = new e.File(entry.name, entry.path)
             file.data = {
-                type: 'texture',
-                value: texture.location.location
+                type: fileType,
+                value: entry.location.location
             }
             let folder;
-            if(texture.location.namespace === mod.codename){
-                folder = getOrCreateFolder(mod.assetsPath + "textures",texture.location.path);
 
-                if(folder == null){
-                    explorer.addChild(file);
-                }else{
-                    folder.addChild(file);
-                }
+            let locPath = entry.location.path;
+
+            if(entry.location.namespace === mod.codename){
+                folder = getOrCreateFolder((path === 'assets' ? mod.assetsPath : mod.dataPath) + "/" + folderName,locPath, null, ...ignoreFolders);
             }else{
                 /**
                  * @type {?ModResource}
                  */
                 let resource = null;
                 for (let key in mod.modResources.resources) {
-                    if(texture.location.namespace === key){
+                    if(entry.location.namespace === key){
                         resource = mod.modResources.resources[key];
                     }
                 }
 
-                let texturesPath = "";
-                let folderPath = "error/";
+                let entryPath = "";
+                let folderPath = "errors/";
 
                 if(resource != null){
-                    texturesPath = resource.assetsPath + "/textures";
+                    entryPath = (path === 'assets' ? resource.assetsPath : resource.dataPath) + "/" + folderName;
                     folderPath = "resources/" + resource.codename + "/";
+                    let movedIgnoreFolders = [];
+                    for (let num of ignoreFolders) {
+                        movedIgnoreFolders.push(num+1)
+                    }
 
                     //create custom folder
-                    let resourceFolder = getOrCreateFolder(texturesPath, "resources/", (name, path) => {
+                    let resourceFolder = getOrCreateFolder(entryPath, "resources/", (name, path) => {
                         return new e.ResourceFolder(name, path);
-                    });
+                    },...movedIgnoreFolders);
                     resourceFolder.collapsed = true;
 
                     //add
-                    folder = getOrCreateFolder(texturesPath, folderPath + texture.location.path);
+                    folder = getOrCreateFolder(entryPath, folderPath + locPath,null,...movedIgnoreFolders);
 
-                    if(folder == null){
-                        explorer.addChild(file);
-                    }else{
-                        folder.addChild(file);
-                    }
                 }else{
 
                 }
             }
+            if(folder == null){
+                explorer.addChild(file);
+            }else{
+                folder.addChild(file);
+            }
         }
 
         /**
-         * @param texturesPath {string} /textures folder
+         * @param entryPath {string} /textures folder
          * @param path {string} path from ResourceLocation
          * @param folderCallback {?function(string, string): Folder}
+         * @param ignoreFolders {...number}
          * @return Folder
          */
-        function getOrCreateFolder(texturesPath, path, folderCallback = null){
+        function getOrCreateFolder(entryPath, path, folderCallback = null, ...ignoreFolders){
             /**
              * @type {?Folder}
              */
@@ -155,6 +162,9 @@ class FileUtils{
             let split = path.split("/");
             let i = 0;
             for (let string of split) {
+                if(ignoreFolders.includes(i)){
+                    continue
+                }
                 i++;
                 if(split.length === i){
                     break;
@@ -172,9 +182,9 @@ class FileUtils{
 
                 if(!contains){
                     if(folderCallback == null) {
-                        folder = new e.Folder(string, texturesPath + strPath);
+                        folder = new e.Folder(string, entryPath + strPath);
                     }else{
-                        folder = folderCallback(string, texturesPath + strPath);
+                        folder = folderCallback(string, entryPath + strPath);
                     }
                     if(lastFolder == null){
                         explorer.addChild(folder);
@@ -192,6 +202,73 @@ class FileUtils{
         return explorer;
     }
 
+    /**
+     * @param folderName {string} e.g 'models/item'
+     * @param configDataName {string} e.g 'items' (from JSON config)
+     * @param path {"assets", "data"}
+     * @returns {AbstractFileExplorer}
+     */
+    static getUnfolderedResourceList(folderName, configDataName, path = 'assets'){
+        const e = require('../gui/fileexplorer');
+        let explorer = fsutils.getFileExplorer((path === 'assets' ? mod.assetsPath : mod.dataPath) + folderName);
+        let oldExplorer = explorer;
+        let configData = mod.config.json[configDataName];
+        if (configData != null) {
+            oldExplorer = e.AbstractFileExplorer.deserialize(configData, null, null);
+
+            //everything on explorer json should be the same as in blocks, just without folders
+            //if it isn't remove or add item
+
+            for (let item of oldExplorer.allChilds) {
+                if(item instanceof e.File){
+                    let contains = false;
+                    //folders are disallowed in explorer, show only from main folder
+                    for (let file of explorer.childs) {
+                        if (file instanceof e.File) {
+                            if (file.getName() === item.getName()) {
+                                contains = true;
+                                break
+                            }
+                        }
+                    }
+
+                    if (contains) {
+                        //if does not exists on explorer from directory, remove
+                        if(item.parent == null){
+                            oldExplorer.removeChild(item)
+                        }else{
+                            item.parent.removeChild(item);
+                        }
+                    }
+
+                }
+            }
+
+            for (let file of explorer.childs) {
+                if (file instanceof e.File) {
+                    let contains = false;
+
+                    for (let item of oldExplorer.allChilds) {
+                        if(item instanceof e.File){
+                            if (item.getName() === file.getName()) {
+                                contains = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!contains) {
+                        //if does not exists on explorer from JSON, but exists on normal, add
+                        oldExplorer.addChild(file);
+                    }
+                }
+            }
+        }
+        //save to JSON
+        mod.config.json[configDataName] = oldExplorer.serialize();
+        mod.config.markDirty();
+        return oldExplorer;
+    }
     /**
      * @param pathStr {string}
      * @return {string}

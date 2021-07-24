@@ -13,6 +13,10 @@ class ModAssetLoader {
     /**
      * @type AbstractFileExplorer
      */
+    blockModels;
+    /**
+     * @type AbstractFileExplorer
+     */
     items;
     /**
      * @type AbstractFileExplorer
@@ -59,58 +63,12 @@ class ModAssetLoader {
     loadBlockstates(){
         //------------------------------------------------------ BLOCKSTATES -----------
         LOG.progress("Loading blockstates");
-        let blocks = fsutils.getFileExplorer(this.blockStatePath);
-        let oldBlockstates = blocks;
-        if (this.mod.config.json.blockstates != null) {
-            oldBlockstates = explorer.AbstractFileExplorer.deserialize(this.mod.config.json.blockstates, null, null);
 
-            //everything on blockstates json should be the same as in blocks, just without folders
-            //if it isn't remove or add block
+        this.blocks = fsutils.getUnfolderedResourceList('blockstates','blockstates');
 
-            oldBlockstates.iterate((blockstate, folder) => {
-                let contains = false;
-                //folders are disallowed in blockstates, show only from main folder
-                for (let file of blocks.childs) {
-                    if (file instanceof explorer.File) {
-                        if (file.getName() === blockstate.getName()) {
-                            contains = true;
-                            break
-                        }
-                    }
-                }
 
-                if (!contains) {
-                    //if does not exists on blockstates from directory, remove
-                    utils.removeFromArray(folder.childs, blockstate);
-                }
-
-            });
-
-            for (let file of blocks.childs) {
-                if (file instanceof explorer.File) {
-                    let contains = false;
-
-                    oldBlockstates.iterate((blockstate, folder_) => {
-                        if (blockstate.getName() === file.getName() && !contains) {
-                            contains = true;
-                        }
-                    });
-
-                    if (!contains) {
-                        //if does not exists on blockstates from JSON, but exists on normal, add
-                        oldBlockstates.addChild(file);
-                    }
-                }
-            }
-        }
-        //save to JSON
-        this.mod.config.json.blockstates = oldBlockstates.serialize();
-        this.mod.config.markDirty();
-
-        this.blocks = oldBlockstates;
-
-        LOG.success("Loaded " + oldBlockstates.getFiles().length + " blockstates");
-        this.mod.modLoadingProgress.update('blockstates',oldBlockstates.getFiles().length);
+        LOG.success("Loaded " + this.blocks.allChilds.length + " blockstates");
+        this.mod.modLoadingProgress.update('blockstates',this.blocks.allChilds.length);
     }
 
     /**
@@ -119,21 +77,18 @@ class ModAssetLoader {
     loadBlocks(){
         //------------------------------------------------------ BLOCKS & MODELS -----------
         LOG.progress("Loading models...")
-        /**
-         * @type {BlockModel[]}
-         */
-        this.blocks.iterate((file, folder) => {
+        for (let file of this.blocks.allChilds) {
             let block = this.registry.getOrCreateBlock(new Block(file.path, this.resourcePath, this.mod.codename));
-            //LOG.debug("Registered " + block.name + " (" + file.path + ")")
 
             block.load();
             file.data = {
                 type: 'block',
                 value: block.location.location
             }
-        });
+        }
 
         let resourcesFolder = new explorer.ResourceFolder('resources','');
+        this.blocks.addChild(resourcesFolder);
 
         for (let key in this.mod.modResources.resources) {
             let resource = this.mod.modResources.resources[key];
@@ -154,7 +109,49 @@ class ModAssetLoader {
             }
         }
 
-        this.blocks.addChild(resourcesFolder);
+
+        // * ------------------------------------------------
+
+        /**
+         * @param namespace {string}
+         * @param dir {string}
+         * @param registry {ModRegistry}
+         * @param resourcePath {string}
+         */
+        function loadModelsIn(namespace, dir, registry, resourcePath){
+            let files = fsutils.getFilesInFolder(dir);
+            for (let file of files) {
+                let path = fsutils.normalizePath(file).replace(fsutils.normalizePath(dir),'');
+                if(path.startsWith('/')){
+                    path = path.substring(1);
+                }
+
+                if(!path.includes('.json')){
+                    continue
+                }
+
+                path = path.replace('.json','')
+
+                let location = new ResourceLocation({
+                    namespace: namespace,
+                    path: 'block/' + path
+                });
+
+                if(!registry.hasBlockModel(location)){
+                    let texture = registry.getOrCreateBlockModel(new BlockModel(location.location,resourcePath));
+                }
+            }
+        }
+
+        loadModelsIn(this.mod.codename, this.mod.assetsPath + "/models/block", this.registry, this.resourcePath);
+        for (let key in this.mod.modResources.resources) {
+            let resource = this.mod.modResources.resources[key];
+            loadModelsIn(resource.codename, resource.assetsPath + "/models/block", this.registry, resource.path);
+        }
+
+        this.blockModels = fsutils.getResourceList('models/block','block_model',mod.modRegistry.blockModels,'assets',0);
+
+        // * ------------------------------------------------
 
         let blocksCount = this.registry.countBlocks(true)
         let modelsCount = this.registry.countBlockModels(true)
@@ -162,78 +159,27 @@ class ModAssetLoader {
         LOG.success("Loaded " + modelsCount.count + " (" + modelsCount.valid + " valid) models for " + blocksCount.count + " blocks (" + blocksCount.valid + " valid)")
         this.mod.modLoadingProgress.update('models_block',modelsCount.count);
     }
-    //[20:22:06] DEBUG >> Registered jungle_round_table (E:\Programowanie\Java Projects\aWildNatureMod-1.15.2\src\main\resources/assets/wildnature/blockstates//jungle_round_table.json)
-    //[20:25:00] DEBUG >> Registered yucca.json (E:\Programowanie\Java Projects\aWildNatureMod-1.15.2\src\main\resources/assets/wildnature//models/item/yucca.json)
+
     /**
      * @private
      */
     loadItems(){
         LOG.progress("Loading items...");
 
-        let items = fsutils.getFileExplorer(this.assetsPath + "/models/item");
-        let oldItems = items;
-        if (this.mod.config.json.items != null) {
-            oldItems = explorer.AbstractFileExplorer.deserialize(this.mod.config.json.items, null, null);
-
-            //everything on items json should be the same as in blocks, just without folders
-            //if it isn't remove or add item
-
-            oldItems.iterate((item, folder) => {
-                let contains = false;
-                //folders are disallowed in items, show only from main folder
-                for (let file of items.childs) {
-                    if (file instanceof explorer.File) {
-                        if (file.getName() === item.getName()) {
-                            contains = true;
-                            break
-                        }
-                    }
-                }
-
-                if (!contains) {
-                    //if does not exists on items from directory, remove
-                    utils.removeFromArray(folder.childs, item);
-                }
-
-            });
-
-            for (let file of items.childs) {
-                if (file instanceof explorer.File) {
-                    let contains = false;
-
-                    oldItems.iterate((item, folder_) => {
-                        if (item.getName() === file.getName() && !contains) {
-                            contains = true;
-                        }
-                    });
-
-                    if (!contains) {
-                        //if does not exists on items from JSON, but exists on normal, add
-                        oldItems.addChild(file);
-                    }
-                }
-            }
-        }
-        //save to JSON
-        this.mod.config.json.items = oldItems.serialize();
-        this.mod.config.markDirty();
-
-        this.items = oldItems;
+        this.items = fsutils.getUnfolderedResourceList('models/item','items');
 
         //load to registry
-        /**
-         * @type {Item[]}
-         */
-        this.items.iterate((file, folder) => {
+        for (let file of this.items.allChilds) {
             let item = this.registry.getOrCreateItem(new Item(file.path, this.resourcePath, this.mod.codename));
             item.load();
             file.data = {
                 type: 'item',
                 value: item.location.location
             }
-        });
+        }
 
         let resourcesFolder = new explorer.ResourceFolder('resources','');
+        this.items.addChild(resourcesFolder);
 
         for (let key in this.mod.modResources.resources) {
             let resource = this.mod.modResources.resources[key];
@@ -250,7 +196,6 @@ class ModAssetLoader {
                 folder.addChild(file);
             }
         }
-        this.items.addChild(resourcesFolder);
 
         let count = this.registry.countItems(true);
 
@@ -316,7 +261,7 @@ class ModAssetLoader {
 
         LOG.success("Loaded " + texturesCount + " textures");
 
-        this.textures = fsutils.getTextureList();
+        this.textures = fsutils.getResourceList('textures','texture',mod.modRegistry.textures);
 
         this.mod.modLoadingProgress.update('textures',texturesCount);
     }
@@ -822,6 +767,7 @@ class Block extends IRegistryEntry{
     loadModels() {
         for (let modelLocation of this.modelLocations) {
             let model = mod.modRegistry.getOrCreateBlockModel(new BlockModel(modelLocation,this.resourcePath));
+            model.hasBlockstate = true;
             this.models.push(model);
             model.load();
         }
@@ -832,6 +778,14 @@ class Block extends IRegistryEntry{
             return fs.readFileSync(this.path,'utf-8');
         }else{
             return this.jsonRemote
+        }
+    }
+
+    exists() {
+        if(isMain) {
+            return fs.existsSync(this.path);
+        }else{
+            return this.existsRemote;
         }
     }
 
@@ -854,7 +808,8 @@ class Block extends IRegistryEntry{
             valid: this.valid,
             errorMessage: this.errorMessage,
             resourcePath: this.resourcePath,
-            json: this.json
+            json: this.json,
+            exists: this.exists()
         }
     }
 
@@ -873,6 +828,7 @@ class Block extends IRegistryEntry{
         block.errorMessage = data.errorMessage;
         block.resourcePath = data.resourcePath;
         block.jsonRemote = data.json;
+        block.existsRemote = data.exists;
         return block;
     }
 
@@ -1013,6 +969,7 @@ class BlockModel extends IModel{
     valid = false;
     errorMessage = null;
 
+    hasBlockstate = false;
     /**
      * @type {?string}
      */
@@ -1092,6 +1049,25 @@ class BlockModel extends IModel{
         return global.path.parse(this.path).name;
     }
 
+    get json(){
+        if(isMain){
+            if(this.exists()) {
+                return fs.readFileSync(this.path, 'utf-8');
+            }
+            return null;
+        }else{
+            return this.jsonRemote
+        }
+    }
+
+    exists() {
+        if(isMain) {
+            return fs.existsSync(this.path);
+        }else{
+            return this.existsRemote;
+        }
+    }
+
     // * ---------------------------
     serialize(){
         let textures = [];
@@ -1105,8 +1081,11 @@ class BlockModel extends IModel{
             loaded: this.loaded,
             valid: this.valid,
             errorMessage: this.errorMessage,
+            hasBlockstate: this.hasBlockstate,
             parent: this.parent,
-            resourcePath: this.resourcePath
+            resourcePath: this.resourcePath,
+            exists: this.exists(),
+            json: this.json
         }
     }
 
@@ -1124,7 +1103,10 @@ class BlockModel extends IModel{
         model.loaded = data.loaded;
         model.valid = data.valid;
         model.errorMessage = data.errorMessage;
+        model.hasBlockstate = data.hasBlockstate;
         model.parent = data.parent;
+        model.existsRemote = data.exists;
+        model.jsonRemote = data.json;
         return model;
     }
 
@@ -1150,6 +1132,7 @@ class Item extends IModel{
     loaded = false;
     valid = false;
     errorMessage = null;
+
 
     /**
      * @type {?string}
@@ -1240,8 +1223,6 @@ class Item extends IModel{
     get name() {
         return global.path.parse(this.path).name;
     }
-
-
 
     // * ---------------------------
     serialize(){

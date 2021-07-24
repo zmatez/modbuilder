@@ -4,7 +4,7 @@ const tabpane = require('../../../../gui/tabpane');
 class TabAbout extends ITab{
 
     createTab() {
-        this.tab = new tabpane.ImageTab('About','settings.svg','tab-about');
+        this.tab = new tabpane.AnimatedImageTab('About','settings_gray.svg','setting.svg','tab-about');
         this.tab.element.classList.add("center-flex");
         this.tab.element.innerHTML = utils.getLoader(60);
         this.element = this.tab.element;

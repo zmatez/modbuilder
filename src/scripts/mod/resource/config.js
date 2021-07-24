@@ -44,15 +44,21 @@ class Config{
         this.exists((v) => {
             if(!v){
                 //create new
-                fs.mkdir(this.path,(err) => {
-                    if (err) {
-                        return;
-                    }
-                    global.LOG.log("Created config directory.");
-                });
-                fs.writeFile(this.filePath,JSON.stringify(this.json,null,2),() => {
+                try {
+                    fs.mkdirSync(this.path, {recursive: true});
+                    LOG.log("Created config directory.");
+                }catch (e){
+                    LOG.error("Error creating config directory: " + e.message);
+                    return;
+                }
 
-                });
+                try{
+                    fs.writeFileSync(this.filePath,JSON.stringify(this.json,null,2));
+                    LOG.log("Created config file.")
+                }catch (e){
+                    LOG.error("Error creating config file: " + e.message);
+                    return;
+                }
                 this.newlyCreated = true;
             }
 
@@ -87,12 +93,13 @@ class Config{
         this.exists((v) => {
             if(!v){
                 //create new
-                fs.mkdir(this.path,(err) => {
-                    if (err) {
-                        return;
-                    }
-                    global.LOG.log("Created config directory.");
-                });
+                try {
+                    fs.mkdirSync(this.path, {recursive: true});
+                    LOG.log("Created config directory.");
+                }catch (e){
+                    LOG.error("Error creating config directory: " + e.message);
+                    return;
+                }
                 this.newlyCreated = true;
             }
         });
@@ -231,20 +238,20 @@ class ModData{
     }
 
     create(name, codename, callback){
+        this.json = {
+            name: name,
+            codename: codename,
+            blockstates: null,
+            items: null,
+            resources: null
+        }
+
         this.name = name;
         this.codename = codename;
 
         fs.writeFile(this.path + "/" + ModData.fileName, JSON.stringify(this.json,null,2), (err) => {
             if(!err){
                 LOG.debug("Created data file for mod: " + codename);
-
-                this.json = {
-                    name: name,
-                    codename: codename,
-                    blockstates: null,
-                    items: null,
-                    resources: null
-                }
 
                 this.loaded = true;
                 this.saved = true;

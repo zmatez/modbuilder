@@ -85,6 +85,92 @@ class IListVisual {
 
     }
 }
+class BlockVisual extends IListVisual {
+    /**
+     * @type Block
+     */
+    block;
+
+    /**
+     * @param model {Block}
+     * @param count {number}
+     */
+    constructor(model, count = 1) {
+        super(count)
+        this.block = model;
+    }
+
+    construct() {
+        this.element = document.createElement('div');
+        this.element.classList.add('model-visual');
+
+        // ? HEADER
+        let header = document.createElement('div');
+        header.classList.add("model-name");
+
+        let modeImg = document.createElement('img');
+        modeImg.classList.add("model-img");
+        modeImg.src = utils.getIcon('block.svg');
+
+        let name = document.createElement('span');
+        name.innerHTML = this.block.location.namespace + ":" + this.block.location.path;
+        utils.addChild(header, modeImg, name);
+
+        if (this.count > 1) {
+            let count = document.createElement('span');
+            count.classList.add("model-count");
+            count.innerHTML = 'x' + this.count;
+            utils.addChild(header, count);
+        }
+
+        if (!this.block.valid) {
+            let invalidImg = document.createElement('img');
+            invalidImg.classList.add("invalid");
+            invalidImg.src = utils.getIcon('error-mark.svg');
+            utils.addChild(header, invalidImg);
+        }
+
+        utils.addChild(this.element, header)
+        // ? DATA
+        let pathSection = createSection('Path');
+        let path = document.createElement('span');
+        path.classList.add("model-info", "info-path");
+        path.innerHTML = this.block.path;
+        let buttonPathOpen = new forms.IconButton('Open', 'open.svg', () => {
+
+        });
+        buttonPathOpen.addTo(path);
+        utils.addChild(pathSection, path);
+        utils.addChild(this.element, pathSection);
+        //
+        if (!this.block.valid) {
+            let errorSection = createSection('Error', 'color: red');
+            let error = document.createElement('span');
+            error.classList.add("model-info", "info-error");
+            error.innerHTML = this.block.errorMessage;
+            utils.addChild(errorSection, error);
+            utils.addChild(this.element, errorSection);
+        }
+
+        function createSection(title, style = null) {
+            let section = document.createElement('div');
+            section.classList.add("model-section");
+            let sectionTitle = document.createElement('h4');
+            sectionTitle.classList.add("section-title");
+            sectionTitle.innerHTML = title;
+            if (style != null) {
+                sectionTitle.setAttribute('style', style);
+            }
+
+            utils.addChild(section, sectionTitle);
+            return section;
+        }
+
+        return this.element;
+    }
+}
+
+module.exports.BlockVisual = BlockVisual;
 
 class ModelVisual extends IListVisual {
     /**
@@ -260,6 +346,8 @@ class TextureVisual extends IListVisual {
     }
 }
 
+module.exports.TextureVisual = TextureVisual;
+
 class ItemVisual extends IListVisual {
     /**
      * @type Item
@@ -397,7 +485,7 @@ class ItemVisual extends IListVisual {
 module.exports.ItemVisual = ItemVisual;
 
 // ! -------------------------------------------------------------------------------------------------------------------
-// # TEXTURE MENU
+// # TEXTUREUSAGE  MENU
 
 class TextureUsageList {
     /**
@@ -623,3 +711,97 @@ class ParentTextureDiagram {
 }
 
 module.exports.ParentTextureDiagram = ParentTextureDiagram;
+
+// ! -------------------------------------------------------------------------------------------------------------------
+// # MODEL USAGE MENU
+
+class ModelUsageList {
+    /**
+     * @type HTMLElement
+     */
+    parent;
+    /**
+     * @type BlockModel
+     */
+    model;
+
+    /**
+     * @type HTMLElement
+     */
+    element;
+
+    constructor(parent, texture) {
+        this.parent = parent;
+        this.model = texture;
+    }
+
+    construct() {
+        this.element = document.createElement('div');
+        this.element.classList.add('model-usage-menu');
+
+        //find models that use that texture
+        //futurely add here particles, mobs, etc
+        /**
+         * @type {{state: Block, count: number}[]}
+         */
+        let states = [];
+        for (let [key, state] of mod.modRegistry.blocks) {
+            let containsModel = false;
+            for (let model of state.models) {
+                if (model.path === this.model.path) {
+                    containsModel = true;
+                    break
+                }
+            }
+            if (!containsModel) {
+                continue;
+            }
+            let contains = false;
+            for (let mdl of states) {
+                if (mdl.state === state) {
+                    mdl.count++;
+                    contains = true;
+                    break;
+                }
+            }
+
+            if (!contains) {
+                states.push({
+                    state: state,
+                    count: 1
+                })
+            }
+        }
+
+        this.createSeparator("Blockstates", states.length);
+
+        for (let block of states) {
+            let visual = new BlockVisual(block.state, block.count);
+            let el = visual.construct();
+            utils.addChild(this.element, el);
+        }
+
+        utils.addChild(this.parent, this.element);
+    }
+
+    /**
+     * @private
+     * @param text {string}
+     * @param count {number}
+     */
+    createSeparator(text, count) {
+        let separator = document.createElement('div');
+        separator.classList.add("separator");
+        let separatorImg = document.createElement('img');
+        separatorImg.src = utils.getIcon('arrow_collapse.svg');
+        let separatorText = document.createElement('span');
+        separatorText.innerText = text;
+        let separatorCount = document.createElement('span');
+        separatorCount.innerText = count + " usage" + (count === 1 ? "" : "s");
+        separatorCount.classList.add("count");
+        utils.addChild(separator, separatorImg, separatorText, separatorCount)
+        utils.addChild(this.element, separator);
+    }
+}
+
+module.exports.ModelUsageList = ModelUsageList

@@ -1,5 +1,49 @@
 class ModUtils {
+    /**
+     * @param title {string}
+     * @param createCallback {function(HTMLElement)}
+     * @param parent {HTMLElement}
+     * @param classes {string}
+     */
+    static createRegistrySection(title, createCallback, parent, ...classes){
+        let section = document.createElement('div');
+        section.classList.add("content-section", ...classes);
+        // * HEADER
+        let header = document.createElement('h2');
+        header.innerHTML = title;
+        utils.addChild(section, header);
 
+        createCallback(section);
+
+        utils.addChild(parent, section);
+
+        return section;
+    }
+
+    /**
+     * @param title {string}
+     * @param createCallback {function(HTMLElement)}
+     * @param parent {HTMLElement}
+     * @param classes {string}
+     */
+    static createPropertySection(title, createCallback, parent, ...classes){
+        let section = document.createElement('div');
+        section.classList.add('property-entry', ...classes);
+
+        let header = document.createElement('div');
+        header.classList.add('property-title');
+        header.innerHTML = title;
+
+        let content = document.createElement('div');
+        content.classList.add('property-content');
+        createCallback(content);
+
+        utils.addChild(section, header, content);
+        utils.addChild(parent, section);
+
+
+        return section;
+    }
 }
 
 module.exports.ModUtils = ModUtils;

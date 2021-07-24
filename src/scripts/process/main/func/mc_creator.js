@@ -19,6 +19,8 @@ class MCCreator extends MainController{
     }
 
     onOpen(data) {
+        global.modutils = require('../../../mod/util/modutils').ModUtils;
+
         /**
          * @type ModData
          */
@@ -51,6 +53,7 @@ class MCCreator extends MainController{
 
             this.sendMessage('data:render', {
                 blockstates: this.mod.assetLoader.blocks.serialize(),
+                blockModels: this.mod.assetLoader.blockModels.serialize(),
                 items: this.mod.assetLoader.items.serialize(),
                 textures: this.mod.assetLoader.textures.serialize()
             })

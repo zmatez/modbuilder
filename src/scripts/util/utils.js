@@ -56,7 +56,7 @@ class Utils{
      * @return {string}
      */
     static getIconModal(name){
-        return '../../../assets/icons/' + name;
+        return '../../../../assets/icons/' + name;
     }
 
     /**
@@ -191,6 +191,34 @@ class Utils{
             ),
             original
         );
+    }
+
+    /**
+     * @param text {string}
+     * @param element {HTMLElement | null}
+     * @param settings {"above" | "under" | null}
+     */
+    static copyToClipboard(text, element = null, settings = null) {
+        const el = document.createElement('textarea');
+        el.value = text;
+        el.setAttribute('readonly', '');
+        el.style.position = 'absolute';
+        el.style.left = '-9999px';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+
+        if(element != null){
+            let tooltip = new tooltips.TextTooltip(element,"Copied to clipboard");
+            if(settings != null){
+                tooltip.placementY = settings;
+            }
+            tooltip.show();
+            setTimeout(() => {
+                tooltip.hide()
+            }, 2000);
+        }
     }
 }
 
@@ -401,34 +429,6 @@ function insertGETParam(key, value, deleteIfEmpty = true) {
             newurl = currentUrlWithOutHash + queryStart + key + '=' + value + hash;
         }
         window.history.pushState({path: newurl}, '', newurl);
-    }
-}
-
-/**
- * @param text {string}
- * @param element {HTMLElement | null}
- * @param settings {"above" | "under" | null}
- */
-function copyToClipboard(text, element = null, settings = null) {
-    const el = document.createElement('textarea');
-    el.value = text;
-    el.setAttribute('readonly', '');
-    el.style.position = 'absolute';
-    el.style.left = '-9999px';
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
-
-    if(element != null){
-        let tooltip = new TextTooltip(element,"Copied to clipboard");
-        if(settings != null){
-            tooltip.placementY = settings;
-        }
-        tooltip.show();
-        setTimeout(() => {
-            tooltip.hide()
-        }, 2000);
     }
 }
 

@@ -3,6 +3,10 @@ class AbstractFileExplorer{
      * @type ExplorerParent[]
      */
     childs = [];
+    /**
+     * @type ExplorerParent[]
+     */
+    allChilds = [];
 
     /**
      * Used if folder structure is "abstract", and folders are saved only to JSON (blockstates)
@@ -16,7 +20,19 @@ class AbstractFileExplorer{
      */
     addChild(element){
         this.childs.push(element);
+        this.allChilds.push(element);
+        element.parent = null;
+        element.fileExplorer = this;
         return element;
+    }
+
+    /**
+     * @param element {ExplorerParent}
+     */
+    removeChild(element){
+        const {utils} = require('./../util/utils.js');
+        utils.removeFromArray(this.childs, element);
+        utils.removeFromArray(this.allChilds, element);
     }
 
     /**
@@ -37,18 +53,6 @@ class AbstractFileExplorer{
                 })
             }
         }
-    }
-
-    /**
-     * @return {File[]}
-     */
-    getFiles(){
-        let files = [];
-        this.iterate((file, folder) => {
-            files.push(file);
-        })
-
-        return files;
     }
 
     /**
@@ -118,11 +122,11 @@ class AbstractFileExplorer{
      * @return {?Folder}
      */
     getFolder(path){
-        this.iterate((entry, folder) => {
-            if(entry.path === path && entry instanceof Folder){
-                return entry;
+        for (let allChild of this.allChilds) {
+            if(allChild instanceof Folder && allChild.path === path){
+                return allChild;
             }
-        }, null, true);
+        }
         return null;
     }
 
@@ -141,20 +145,27 @@ class AbstractFileExplorer{
         }
 
         let childs = [];
+        let allChilds = [];
         for (let child of data.childs){
             if(child.type === 'folder'){
-                childs.push(Folder.deserialize(child, explorer));
+                let folder = Folder.deserialize(child, explorer, allChilds);
+                allChilds.push(folder);
+                childs.push(folder);
             }else{
-                childs.push(File.deserialize(child, explorer));
+                let file = File.deserialize(child, explorer);
+                allChilds.push(file)
+                childs.push(file);
             }
         }
 
         if(parent == null){
             explorer.childs = childs;
+            explorer.allChilds = allChilds;
             explorer.requireUnique = data.requireUnique;
             return explorer;
         }else{
             explorer.childs = childs;
+            explorer.allChilds = allChilds;
             explorer.parent = parent;
             explorer.requireUnique = data.requireUnique;
             return explorer;
@@ -234,7 +245,6 @@ class FileExplorer extends AbstractFileExplorer{
     }
 
     addChild(element) {
-        element.parent = this;
         return super.addChild(element);
     }
 
@@ -285,7 +295,8 @@ class FileExplorer extends AbstractFileExplorer{
                     }
                 }
             }
-            this.iterate((parent, folder) => {
+
+            for (let parent of this.allChilds) {
                 if (matching.includes(parent)) {
                     this.searchMatches.push(parent);
                     parent.element.style.display = "inherit";
@@ -296,7 +307,7 @@ class FileExplorer extends AbstractFileExplorer{
                 } else {
                     parent.element.style.display = "none";
                 }
-            }, null, true);
+            }
         }
     }
 
@@ -319,13 +330,13 @@ class FileExplorer extends AbstractFileExplorer{
             let min = Math.min(firstClickIndex, secondClickIndex);
             let max = Math.max(firstClickIndex, secondClickIndex);
 
-            this.iterate((file, folder) => {
+            for (let file of this.allChilds) {
                 let index = file.element.offsetTop;
                 if(index >= min && index <= max){
                     file.select();
                     this.selected.push(file);
                 }
-            }, null, true);
+            }
         } else if(!this.controlClicked){
             //deselect - it's not multiple selection
             for (let explorerParent of this.selected) {
@@ -379,6 +390,10 @@ class ExplorerParent{
     /**
      * @type FileExplorer
      */
+    fileExplorer;
+    /**
+     * @type ?Folder
+     */
     parent;
     name;
     path;
@@ -422,7 +437,7 @@ class ExplorerParent{
      * @param event {Event}
      */
     onClick(event){
-        this.parent.onClick(this, event);
+        this.fileExplorer.onClick(this, event);
     }
 
     select(){
@@ -437,7 +452,7 @@ class ExplorerParent{
      * @param event {Event}
      */
     onDoubleClick(event){
-        this.parent.onDoubleClick(this, event);
+        this.fileExplorer.onDoubleClick(this, event);
     }
 
     /**
@@ -505,8 +520,19 @@ class Folder extends ExplorerParent{
      */
     addChild(element){
         this.childs.push(element);
-        element.parent = this.parent;
+        this.fileExplorer.allChilds.push(element);
+        element.fileExplorer = this.fileExplorer;
+        element.parent = this;
         return element;
+    }
+
+    /**
+     * @param element {ExplorerParent}
+     */
+    removeChild(element){
+        const {utils} = require('./../util/utils.js');
+        utils.removeFromArray(this.childs, element);
+        utils.removeFromArray(this.fileExplorer.allChilds, element);
     }
 
     getIcon() {
@@ -590,13 +616,17 @@ class Folder extends ExplorerParent{
         })
     }
 
-    static deserialize(data, parent) {
+    static deserialize(data, parent, allChilds = []) {
         let childs = [];
         for (let child of data.childs){
             if(child.type === 'folder'){
-                childs.push(Folder.deserialize(child, parent));
+                let folder = Folder.deserialize(child, parent, allChilds);
+                allChilds.push(folder);
+                childs.push(folder);
             }else{
-                childs.push(File.deserialize(child, parent));
+                let file = File.deserialize(child, parent);
+                allChilds.push(file)
+                childs.push(file);
             }
         }
 
@@ -610,7 +640,7 @@ class Folder extends ExplorerParent{
             folder = new Folder(data.name, data.path);
         }
 
-        folder.parent = parent;
+        folder.fileExplorer = parent;
         folder.childs = childs;
         return folder;
     }
@@ -679,6 +709,8 @@ class File extends ExplorerParent{
             let type = data.data['type'];
             if(type === 'block'){
                 file = new BlockFile(data.name, data.path);
+            }else if(type === 'block_model'){
+                file = new BlockModelFile(data.name, data.path);
             }else if(type === 'item'){
                 file = new ItemFile(data.name, data.path);
             }else if(type === 'texture'){
@@ -690,7 +722,7 @@ class File extends ExplorerParent{
             file = new File(data.name, data.path);
         }
         file.data = data.data === null ? {} : data.data;
-        file.parent = parent;
+        file.fileExplorer = parent;
         return file;
     }
 
@@ -805,6 +837,77 @@ class BlockFile extends OpenableFile{
     }
 }
 module.exports.BlockFile = BlockFile;
+
+class BlockModelFile extends OpenableFile{
+    get blockModelName(){
+        return this.data.value;
+    }
+
+    getBlockModel(){
+        return mod.modRegistry.getBlockModel(this.blockModelName);
+    }
+
+    getIcon() {
+        return utils.getIcon('model.svg');
+    }
+
+    render() {
+        /**
+         * @type {BlockModel}
+         */
+        let model = this.getBlockModel();
+        let valid = !(model == null || !model.exists())
+
+        this.createElement();
+
+        let icon = document.createElement('img');
+        icon.src = this.getIcon();
+
+        let textures = model == null ? null : model.getTextures();
+        let texture = textures == null || textures.length <= 0 ? null : textures[0].pathOrNull;
+        let iconPreview = document.createElement('img');
+        iconPreview.src = texture == null ? utils.getIcon( 'model.svg') : textures[0].path;
+        if(texture == null){
+            icon.style.filter = 'saturate(0.4)';
+            iconPreview.style.filter = 'saturate(0.2)';
+        }
+
+        this.text = document.createElement('span');
+        this.text.classList.add('title');
+        this.text.innerText = this.getName();
+        if(!valid){
+            this.text.style.color = 'gray';
+        }
+        if(model == null){
+            this.text.style.color = 'red'
+        }
+
+        utils.addChild(this.element,this.text);
+        let errors = document.createElement('div');
+        errors.classList.add("errors");
+        if(!valid){
+            let errorImg = document.createElement('img');
+            errorImg.src = utils.getIcon('error-mark.svg');
+            utils.addChild(errors, errorImg);
+
+            let tooltip = new tooltips.TextTooltip(errorImg, model == null ? "Model is undefined" : model.errorMessage);
+            tooltip.applyHover(errorImg);
+        }
+        if(!model.hasBlockstate){
+            let errorImg = document.createElement('img');
+            errorImg.src = utils.getIcon('error-mark.svg');
+            errorImg.classList.add("warning");
+            utils.addChild(errors, errorImg);
+
+            let tooltip = new tooltips.TextTooltip(errorImg, "This model is unused.");
+            tooltip.applyHover(errorImg);
+        }
+        utils.addChild(this.element, errors);
+
+        return this.element;
+    }
+}
+module.exports.BlockModelFile = BlockModelFile;
 
 class ItemFile extends OpenableFile{
     get itemName(){

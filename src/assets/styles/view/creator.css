@@ -1,8 +1,8 @@
-.model-menu, .texture-usage-menu, .item-parent-section {
+.model-menu, .texture-usage-menu, .model-usage-menu, .item-parent-section {
   display: flex;
   flex-flow: column;
 }
-.model-menu .model-visual, .texture-usage-menu .model-visual, .item-parent-section .model-visual {
+.model-menu .model-visual, .texture-usage-menu .model-visual, .model-usage-menu .model-visual, .item-parent-section .model-visual {
   display: flex;
   flex-flow: column;
   padding: 8px 12px;
@@ -12,7 +12,7 @@
   border: 2px solid transparent;
   transition: border-color 0.2s ease-in-out;
 }
-.model-menu .model-visual .model-name, .texture-usage-menu .model-visual .model-name, .item-parent-section .model-visual .model-name {
+.model-menu .model-visual .model-name, .texture-usage-menu .model-visual .model-name, .model-usage-menu .model-visual .model-name, .item-parent-section .model-visual .model-name {
   font-family: Raleway, sans-serif;
   font-size: 18px;
   color: var(--color-foreground);
@@ -20,37 +20,37 @@
   flex-flow: row;
   align-items: center;
 }
-.model-menu .model-visual .model-name .model-img, .texture-usage-menu .model-visual .model-name .model-img, .item-parent-section .model-visual .model-name .model-img {
+.model-menu .model-visual .model-name .model-img, .texture-usage-menu .model-visual .model-name .model-img, .model-usage-menu .model-visual .model-name .model-img, .item-parent-section .model-visual .model-name .model-img {
   width: 18px;
   height: 18px;
   margin-right: 5px;
 }
-.model-menu .model-visual .model-name .model-count, .texture-usage-menu .model-visual .model-name .model-count, .item-parent-section .model-visual .model-name .model-count {
+.model-menu .model-visual .model-name .model-count, .texture-usage-menu .model-visual .model-name .model-count, .model-usage-menu .model-visual .model-name .model-count, .item-parent-section .model-visual .model-name .model-count {
   font-family: Poppins, sans-serif;
   font-size: 15px;
   font-weight: 600;
   color: var(--color-foreground-p75);
   margin-left: 8px;
 }
-.model-menu .model-visual .model-name .invalid, .texture-usage-menu .model-visual .model-name .invalid, .item-parent-section .model-visual .model-name .invalid {
+.model-menu .model-visual .model-name .invalid, .texture-usage-menu .model-visual .model-name .invalid, .model-usage-menu .model-visual .model-name .invalid, .item-parent-section .model-visual .model-name .invalid {
   width: 15px;
   height: 15px;
   margin-left: auto;
 }
-.model-menu .model-visual .model-section, .texture-usage-menu .model-visual .model-section, .item-parent-section .model-visual .model-section {
+.model-menu .model-visual .model-section, .texture-usage-menu .model-visual .model-section, .model-usage-menu .model-visual .model-section, .item-parent-section .model-visual .model-section {
   display: flex;
   flex-flow: column;
   font-size: 13px;
   margin: 4px 0;
 }
-.model-menu .model-visual .model-section .section-title, .texture-usage-menu .model-visual .model-section .section-title, .item-parent-section .model-visual .model-section .section-title {
+.model-menu .model-visual .model-section .section-title, .texture-usage-menu .model-visual .model-section .section-title, .model-usage-menu .model-visual .model-section .section-title, .item-parent-section .model-visual .model-section .section-title {
   text-transform: uppercase;
   font-size: 13px;
   font-weight: 700;
   color: var(--color-foreground-p50);
   margin: 0;
 }
-.model-menu .model-visual .model-section .model-info, .texture-usage-menu .model-visual .model-section .model-info, .item-parent-section .model-visual .model-section .model-info {
+.model-menu .model-visual .model-section .model-info, .texture-usage-menu .model-visual .model-section .model-info, .model-usage-menu .model-visual .model-section .model-info, .item-parent-section .model-visual .model-section .model-info {
   margin: 0 5px;
   display: flex;
   flex-flow: row;
@@ -59,14 +59,14 @@
   word-wrap: anywhere;
   color: var(--color-foreground-p25);
 }
-.model-menu .model-visual .model-section .icon-button-container, .texture-usage-menu .model-visual .model-section .icon-button-container, .item-parent-section .model-visual .model-section .icon-button-container {
+.model-menu .model-visual .model-section .icon-button-container, .texture-usage-menu .model-visual .model-section .icon-button-container, .model-usage-menu .model-visual .model-section .icon-button-container, .item-parent-section .model-visual .model-section .icon-button-container {
   position: absolute;
   right: 5px;
 }
-.model-menu .model-visual .model-section .icon-button-container img, .texture-usage-menu .model-visual .model-section .icon-button-container img, .item-parent-section .model-visual .model-section .icon-button-container img {
+.model-menu .model-visual .model-section .icon-button-container img, .texture-usage-menu .model-visual .model-section .icon-button-container img, .model-usage-menu .model-visual .model-section .icon-button-container img, .item-parent-section .model-visual .model-section .icon-button-container img {
   filter: invert(0.8);
 }
-.model-menu .model-visual:hover, .texture-usage-menu .model-visual:hover, .item-parent-section .model-visual:hover {
+.model-menu .model-visual:hover, .texture-usage-menu .model-visual:hover, .model-usage-menu .model-visual:hover, .item-parent-section .model-visual:hover {
   border-color: var(--color-dark-accent-foreground-2);
   transition: border-color 0.2s ease-in-out;
 }
@@ -101,7 +101,7 @@
   filter: saturate(0.2);
 }
 
-.texture-usage-menu .separator {
+.texture-usage-menu .separator, .model-usage-menu .separator {
   color: var(--color-foreground);
   background-color: var(--color-background-2);
   font-family: Raleway, sans-serif;
@@ -115,7 +115,7 @@
   margin: 5px 0;
   position: relative;
 }
-.texture-usage-menu .separator .count {
+.texture-usage-menu .separator .count, .model-usage-menu .separator .count {
   font-family: Poppins, sans-serif;
   font-size: 15px;
   font-weight: 600;
@@ -124,7 +124,7 @@
   position: absolute;
   right: 0;
 }
-.texture-usage-menu .separator img {
+.texture-usage-menu .separator img, .model-usage-menu .separator img {
   width: 20px;
   height: 20px;
   margin-right: 6px;
@@ -229,7 +229,6 @@ body {
   background-color: var(--color-accent-foreground-2);
 }
 .menu-content .tab-about .info .logo {
-  width: 60px;
   height: 60px;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
@@ -332,12 +331,57 @@ body {
 .menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section .jsoneditor {
   height: calc(20vh);
 }
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section .property-section {
+  margin: 5px;
+  padding: 5px;
+  border-radius: 10px;
+  background-color: var(--color-background-2);
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section .property-section .property-entry {
+  display: flex;
+  flex-flow: row;
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section .property-section .property-entry .property-title {
+  font-weight: 600;
+  color: var(--color-foreground-p75);
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section .property-section .property-entry .property-content {
+  font-weight: 400;
+  color: var(--color-foreground-p50);
+  margin-left: auto;
+  padding: 0 8px;
+}
 .menu-content .tab-editor .right-box .editor-content .element-tab-content .element-content-right {
   flex-grow: 1;
-  border-left: 1px solid var(--color-accent-foreground-2);
+  border-left: 2px solid var(--color-accent-foreground-2);
+  display: flex;
+  flex-flow: column;
+  position: relative;
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .element-content-right .right-header {
+  background-color: var(--color-accent-foreground-2);
+  padding: 3px 10px;
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .element-content-right .right-header h2 {
+  margin: 0 0 5px;
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .element-content-right .model-content {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color-superdark);
 }
 .menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section h1, .menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section h2, .menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section h3 {
   margin: 0 0 5px;
+}
+.menu-content .tab-block-models .file-explorer-holder {
+  flex-grow: 1;
+}
+.menu-content .tab-block-models .right-box .editor-content .element-tab-content .element-content-left .content-section .texture-list {
+  border-radius: 10px;
+  padding: 10px;
+  background-color: var(--color-background-2);
 }
 .menu-content .tab-items .item-explorer-holder {
   flex-grow: 1;

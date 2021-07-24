@@ -616,6 +616,83 @@ class ImageTab extends Tab{
 
 module.exports.ImageTab = ImageTab;
 
+class AnimatedImageTab extends Tab{
+    iconGrayscale;
+    iconColor;
+
+    /**
+     * @type HTMLElement
+     */
+    imageGrayscale;
+    /**
+     * @type HTMLElement
+     */
+    imageColor;
+
+    /**
+     * @param name {string}
+     * @param iconGrayscale {string}
+     * @param iconColor {string}
+     * @param classes
+     */
+    constructor(name, iconGrayscale, iconColor, ...classes) {
+        super(name, ...classes);
+        this.iconGrayscale = utils.getIcon(iconGrayscale);
+        this.iconColor = utils.getIcon(iconColor);
+    }
+
+
+    construct(){
+        this.tab = document.createElement('div');
+        this.tab.classList.add("tab",'animated-image-tab');
+
+        let iconHolder = document.createElement('div');
+        iconHolder.classList.add('icon-holder');
+
+        this.imageGrayscale = document.createElement('img');
+        this.imageGrayscale.src = this.iconGrayscale;
+        this.imageGrayscale.style.filter = 'invert(0.7)';
+        this.imageGrayscale.classList.add('img-grayscale')
+        this.imageColor = document.createElement('img');
+        this.imageColor.src = this.iconColor;
+        this.imageColor.classList.add("img-color");
+
+        utils.addChild(iconHolder, this.imageGrayscale, this.imageColor);
+        this.updateIcon();
+
+        let text = document.createElement('span');
+        text.innerHTML = this.name;
+
+        utils.addChild(this.tab, iconHolder, text)
+
+        this.tab.addEventListener('click', () => {
+            this.clicked();
+        })
+    }
+
+    updateIcon(){
+        if(this.tab.classList.contains('tab-selected')){
+            this.imageGrayscale.classList.remove('icon-sel');
+            this.imageColor.classList.add('icon-sel');
+        }else{
+            this.imageGrayscale.classList.add('icon-sel');
+            this.imageColor.classList.remove('icon-sel');
+        }
+    }
+
+    onFocus() {
+        super.onFocus();
+        this.updateIcon()
+    }
+
+    onBlur() {
+        super.onBlur();
+        this.updateIcon()
+    }
+}
+
+module.exports.AnimatedImageTab = AnimatedImageTab;
+
 class ElementTab extends CloseableColoredTab{
     /**
      * Creation date of this tab

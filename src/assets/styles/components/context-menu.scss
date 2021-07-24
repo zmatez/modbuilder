@@ -1,0 +1,41 @@
+.context-menu{
+    background-color: var(--color-tooltip);
+    border: 1px solid var(--color-dark-accent-foreground-2);
+    border-radius: 6px;
+    padding: 5px;
+    color: var(--color-foreground-p75);
+    display: flex;
+    flex-flow: column;
+    position: fixed;
+    min-width: 150px;
+    font-size: 13px;
+
+    .context-item{
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        padding: 5px;
+        border-radius: 6px;
+        cursor: pointer;
+
+        &:hover{
+            color: var(--color-foreground);
+            background-color: var(--color-accent-2);
+        }
+
+        &.open{
+            animation: context-menu-open 0.15s forwards ease-in-out;
+        }
+    }
+}
+
+@keyframes context-menu-open {
+    0%{
+        transform: translateY(50%);
+        opacity: 0;
+    }
+    100%{
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

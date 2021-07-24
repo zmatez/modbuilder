@@ -1,4 +1,4 @@
-.model-menu, .texture-usage-menu, .item-parent-section{
+.model-menu, .texture-usage-menu, .model-usage-menu, .item-parent-section{
     display: flex;
     flex-flow: column;
     .model-visual {
@@ -109,7 +109,7 @@
 
 }
 
-.texture-usage-menu {
+.texture-usage-menu, .model-usage-menu {
     .separator{
         color: var(--color-foreground);
         background-color: var(--color-background-2);

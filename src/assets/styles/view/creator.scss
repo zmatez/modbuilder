@@ -89,7 +89,6 @@ body {
             background-color: var(--color-accent-foreground-2);
 
             .logo {
-                width: 60px;
                 height: 60px;
                 image-rendering: pixelated;
                 image-rendering: crisp-edges;
@@ -212,11 +211,54 @@ body {
                         .jsoneditor {
                             height: calc(20vh);
                         }
+
+                        .property-section{
+                            margin: 5px;
+                            padding: 5px;
+                            border-radius: 10px;
+                            background-color: var(--color-background-2);
+
+                            .property-entry {
+                                display: flex;
+                                flex-flow: row;
+
+                                .property-title {
+                                    font-weight: 600;
+                                    color: var(--color-foreground-p75);
+                                }
+
+                                .property-content {
+                                    font-weight: 400;
+                                    color: var(--color-foreground-p50);
+                                    margin-left: auto;
+                                    padding: 0 8px;
+                                }
+                            }
+                        }
                     }
 
                     .element-content-right {
                         flex-grow: 1;
-                        border-left: 1px solid var(--color-accent-foreground-2);
+                        border-left: 2px solid var(--color-accent-foreground-2);
+                        display: flex;
+                        flex-flow: column;
+                        position: relative;
+
+                        .right-header{
+                            background-color: var(--color-accent-foreground-2);
+                            padding: 3px 10px;
+                            h2{
+                                margin: 0 0 5px;
+                            }
+                        }
+
+                        .model-content {
+                            flex-grow: 1;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            background-color: var(--color-superdark);
+                        }
                     }
                 }
 
@@ -224,6 +266,29 @@ body {
                     margin: 0 0 5px;
                 }
 
+            }
+        }
+    }
+
+    .tab-block-models {
+        .file-explorer-holder {
+            flex-grow: 1;
+        }
+
+        .right-box{
+            .editor-content{
+                .element-tab-content{
+                    .element-content-left{
+                        .content-section{
+                            .texture-list{
+                                border-radius: 10px;
+                                padding: 10px;
+                                background-color: var(--color-background-2);
+                            }
+                        }
+                    }
+
+                }
             }
         }
     }
