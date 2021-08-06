@@ -221,8 +221,9 @@ class ModalRenderer{
     static registerModals(){
         //!-------------------------- register modals here -----------
         this.register(new InfoModal());
-        this.register(new ActionModal())
-        this.register(new ResourcesModal())
+        this.register(new ActionModal());
+        this.register(new ResourcesModal());
+        this.register(new TextModal());
         //!-----------------------------------------------------------
     }
 
@@ -495,5 +496,77 @@ class ResourcesModal extends ModalRenderer{
 
         utils.addChild(list, element);
         return element;
+    }
+}
+
+class TextModal extends ModalRenderer{
+    constructor() {
+        super("text");
+    }
+
+    draw(parent, id, data) {
+        let icon = document.createElement('img');
+        icon.classList.add("modal-icon");
+        icon.src = "../../../assets/icons/" + data['icon'];
+        utils.addChild(parent, icon);
+
+        let title = document.createElement('div');
+        title.classList.add("modal-title");
+
+        let titleText = document.createElement('h3');
+        titleText.innerHTML = data['title'];
+        utils.addChild(title, titleText);
+
+        let titleData = document.createElement('div');
+        titleData.classList.add("text");
+        titleData.innerHTML = data['text'];
+        utils.addChild(title, titleData);
+
+        utils.addChild(parent, title);
+
+        //--------
+        let form = new Form(parent);
+        form.push();
+        let input = new forms.FormField('input','');
+        let value = data['value'];
+        if(value != null){
+            input.value = value;
+        }
+        form.addEntry(input);
+        form.pop();
+
+        //--------
+        let buttons = document.createElement('div');
+        buttons.classList.add("modal-buttons");
+        utils.addChild(parent, buttons);
+
+        let okText = data['text1'];
+        if(okText == null){
+            okText = "Submit";
+        }
+        let okAction = data['action1'];
+
+        let okButton = new forms.Button(okText, () => {
+            if(okAction != null){
+                this.sendAction(id, okAction)
+            }
+            this.close(parent, id);
+        });
+
+        let cancelText = data['text2'];
+        if(cancelText == null){
+            cancelText = "Cancel";
+        }
+        let cancelAction = data['action2'];
+
+        let cancelButton = new forms.Button(cancelText, () => {
+            if(cancelText != null){
+                this.sendAction(id, cancelAction)
+            }
+            this.close(parent, id);
+        });
+
+        okButton.addTo(buttons);
+        cancelButton.addTo(buttons);
     }
 }

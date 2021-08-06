@@ -3,7 +3,7 @@ const Controller = require('./controller.js');
 //--------------------------------------------------------
 // DEFAULT SCRIPTS
 global.config = require('../mod/resource/config.js');
-global.utils = require('../util/utils.js');
+global.utils = require('../util/utils.js').utils;
 
 //--------------------------------------------------------
 

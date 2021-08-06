@@ -157,6 +157,8 @@ body {
             .editor-content-tab-holder {
                 background-color: var(--color-accent-foreground-2);
                 color: white;
+                position: relative;
+                z-index: 5;
             }
 
             .editor-content {
@@ -193,24 +195,39 @@ body {
 
                     .element-content-left {
                         width: 70%;
-                        padding: 7px;
-                        overflow-y: auto;
+                        display: flex;
+                        flex-flow: row;
+                        position: relative;
+
+                        .pane-content{
+                            flex-grow: 1;
+                            padding: 7px;
+                            overflow-y: auto;
+                            position: relative;
+                            width: calc(100% - 45px);
+
+                            .pane-inside{
+                                width: 100%;
+
+                                .form-field{
+                                    max-width: 400px;
+                                }
+                            }
+                        }
+
+                        .pane-holder{
+                            width: 45px;
+                            background-color: var(--color-accent-foreground-2);
+                            box-shadow: 0 0 5px 0 var(--color-foreground-p25);
+                            position: relative;
+                            height: 100%;
+                        }
                     }
 
                     .content-section {
                         padding-bottom: 15px;
                         margin-bottom: 15px;
                         border-bottom: 1px solid var(--color-dark-accent-contrast);
-
-                        &.json-section {
-                            margin-bottom: 0;
-                            padding-bottom: 0;
-                            border-bottom: none;
-                        }
-
-                        .jsoneditor {
-                            height: calc(20vh);
-                        }
 
                         .property-section{
                             margin: 5px;
@@ -255,9 +272,33 @@ body {
                         .model-content {
                             flex-grow: 1;
                             display: flex;
+                            flex-wrap: wrap;
                             justify-content: center;
                             align-items: center;
                             background-color: var(--color-superdark);
+                            gap: 10px;
+                            overflow-y: auto;
+
+                            img{
+                                width: 80%;
+                                object-fit: contain;
+                                image-rendering: crisp-edges;
+                                image-rendering: pixelated;
+                                border: 2px solid transparent;
+
+                                transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+
+                                &:hover{
+                                    border-color: var(--color-dark-accent-foreground-2);
+                                    background-color: var(--color-background-2);
+                                }
+                            }
+
+                            &.lot{
+                                img{
+                                    width: 40%;
+                                }
+                            }
                         }
                     }
                 }

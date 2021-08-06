@@ -146,6 +146,7 @@ class CreatorController extends RendererController{
         this.assetProgress.addEntry(new progress.AssetProgressEntry('Block Models', 'models_block'));
         this.assetProgress.addEntry(new progress.AssetProgressEntry('Item Models', 'models_item'));
         this.assetProgress.addEntry(new progress.AssetProgressEntry('Textures', 'textures'));
+        this.assetProgress.addEntry(new progress.AssetProgressEntry('Render', 'render'));
         this.assetProgress.start();
 
         this.receive('data:about', (data) => {
@@ -171,25 +172,49 @@ class CreatorController extends RendererController{
         this.receive('data:render', (data) => {
             console.log("Rendering")
             this.explorers.block = explorer.FileExplorer.deserialize(data.blockstates, this.tabExplorers.block, this.callbacks.block);
+            this.explorers.blockModel = explorer.FileExplorer.deserialize(data.blockModels, this.tabExplorers.blockModel, this.callbacks.blockModel);
+            this.explorers.item = explorer.FileExplorer.deserialize(data.items, this.tabExplorers.item, this.callbacks.item);
+            this.explorers.texture = explorer.FileExplorer.deserialize(data.textures, this.tabExplorers.texture, this.callbacks.texture);
+
+
             this.explorers.block.renderAsync(() => {
-                this.callbacks.block.render(this.explorers.block)
+                this.callbacks.block.render(this.explorers.block);
+                update(this.assetProgress);
             });
 
-            this.explorers.blockModel = explorer.FileExplorer.deserialize(data.blockModels, this.tabExplorers.blockModel, this.callbacks.blockModel);
-            //this.explorers.blockModel.renderAsync(() => {});
+            this.explorers.blockModel.renderAsync(() => {
+                //this.callbacks.blockModel.render(this.explorers.blockModel);
+                update(this.assetProgress);
+            });
 
-            this.explorers.item = explorer.FileExplorer.deserialize(data.items, this.tabExplorers.item, this.callbacks.item);
-            //this.explorers.item.renderAsync(() => {});
+            this.explorers.item.renderAsync(() => {
+                //this.callbacks.item.render(this.explorers.item);
+                update(this.assetProgress);
+            });
 
-            this.explorers.texture = explorer.FileExplorer.deserialize(data.textures, this.tabExplorers.texture, this.callbacks.texture);
-            //this.explorers.texture.renderAsync(() => {});
+            this.explorers.texture.renderAsync(() => {
+                //this.callbacks.texture.render(this.explorers.texture);
+                update(this.assetProgress);
+            });
+
+            let rendered = 0;
+            let max = 4;
+            function update(assetProgress){
+                rendered++;
+                assetProgress.update({
+                    render: {
+                        value: rendered >= max,
+                        info: rendered + "/" + max
+                    }
+                });
+                if(rendered >= max){
+                    assetProgress.finish()
+                }
+            }
         })
 
         this.receive('data:progress', (data) => {
             this.assetProgress.update(data.progress);
-            if(data.loaded){
-                this.assetProgress.finish()
-            }
         });
 
         this.receive('data:reload', (data) => {

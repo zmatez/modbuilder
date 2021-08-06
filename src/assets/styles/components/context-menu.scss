@@ -1,40 +1,94 @@
-.context-menu{
+.context-menu {
     background-color: var(--color-tooltip);
-    border: 1px solid var(--color-dark-accent-foreground-2);
-    border-radius: 6px;
+    border: 1px solid var(--color-accent-foreground-2);
+    border-radius: 4px;
     padding: 5px;
     color: var(--color-foreground-p75);
     display: flex;
     flex-flow: column;
+    justify-content: center;
     position: fixed;
-    min-width: 150px;
+    width: 200px;
     font-size: 13px;
-
-    .context-item{
+    cursor: default;
+    
+    .context-item {
         display: flex;
         flex-flow: row;
         align-items: center;
         padding: 5px;
-        border-radius: 6px;
+        border-radius: 3px;
         cursor: pointer;
+        position: relative;
 
-        &:hover{
+        &:hover {
             color: var(--color-foreground);
             background-color: var(--color-accent-2);
+
+            .context-arrow {
+                filter: invert(100%);
+            }
+
+            > .context-dropdown-menu-holder {
+                display: inherit;
+            }
         }
 
-        &.open{
-            animation: context-menu-open 0.15s forwards ease-in-out;
+        .context-arrow {
+            filter: invert(18%) sepia(52%) saturate(4710%) hue-rotate(277deg) brightness(91%) contrast(99%);
+            margin-left: auto;
+            height: 16px;
         }
+
+        .context-icon {
+            height: 16px;
+            margin-right: 4px;
+
+            &.context-icon-invert {
+                filter: invert(90%);
+            }
+        }
+
+        .context-dropdown-menu-holder{
+            display: none;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 400px;
+            cursor: default;
+
+            .context-dropdown-menu {
+                position: absolute;
+                top: -5px;
+                margin-left: 195px;
+            }
+
+            &:hover {
+                display: inherit;
+            }
+        }
+
+
+    }
+
+    .context-divider {
+        width: 90%;
+        height: 2px;
+        margin: 8px 0;
+        background-color: var(--color-background);
+    }
+
+    &.open {
+        animation: context-menu-open 0.15s forwards ease-in-out;
     }
 }
 
 @keyframes context-menu-open {
-    0%{
-        transform: translateY(50%);
+    0% {
+        transform: translateY(-25%);
         opacity: 0;
     }
-    100%{
+    100% {
         transform: translateY(0);
         opacity: 1;
     }

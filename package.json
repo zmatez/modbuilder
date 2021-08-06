@@ -17,8 +17,8 @@
     "@iarna/toml": "^2.2.5",
     "electron-titlebar": "^0.0.3",
     "glob": "^7.1.7",
+    "image-size": "^1.0.0",
     "jquery": "^3.6.0",
-    "jsoneditor": "^9.5.1",
     "overlayscrollbars": "^1.13.1"
   }
 }

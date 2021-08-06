@@ -127,6 +127,7 @@ class Mod extends IMod{
         this.modLoadingProgress.register('models_block');
         this.modLoadingProgress.register('models_item');
         this.modLoadingProgress.register('textures');
+        this.modLoadingProgress.register('render');
 
         this.readTOML((config) => {
             this.tomlConfig = config;

@@ -194,7 +194,7 @@ class BlockModelTab extends tabpane.ElementTab{
     constructor(blockModelFile) {
         super(blockModelFile.getName(), blockModelFile.getIcon(), '45D32C');
         this.blockModelFile = blockModelFile;
-        this.blockModel = blockModelFile.getBlockModel();
+        this.blockModel = blockModelFile.getBlockModel()
     }
 
     make(content) {
@@ -221,7 +221,7 @@ class BlockModelTab extends tabpane.ElementTab{
             modutils.createRegistrySection('Modify', section => {
                 let form = new Form(section);
                 form.push();
-                let name = new forms.FormField('name', "Codename");
+                let name = new forms.FormField('name', "Name");
                 name.setValue(this.blockModelFile.getName());
                 form.addEntry(name);
                 form.pop()
@@ -293,7 +293,6 @@ class BlockModelTab extends tabpane.ElementTab{
     onOpen() {
         super.onOpen();
         this.blockModelFile.open();
-        console.log("Open: " + this.blockModel.location.location)
     }
 
     onClose() {

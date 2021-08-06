@@ -105,9 +105,25 @@ class TabBlocks extends ITab{
                 for (let file of fx.allChilds) {
                     let contextMenu = new contextmenu.ContextMenu(file.element);
                     contextMenu.setup((items) => {
+                        items.push(new contextmenu.MenuButtonContextItem("New", () => {}, (items) => {
+                            items.push(new contextmenu.ImageButtonContextItem("Block", utils.getIcon('block.svg'),() => {
+
+                            }));
+                            items.push(new contextmenu.ImageButtonContextItem("Folder", utils.getIcon('folder.svg'), () => {
+                                contextMenu.close();
+                                this.controller.sendMessage('modal:create_folder', {explorer: 'block', index: this.controller.explorers.block.allChilds.indexOf(file)});
+                            },true));
+                        }));
+                        //
+                        //items.push(new contextMenu.DividerContextItem());
+                        //
+                        items.push(new contextmenu.ButtonContextItem("Rename", () => {
+
+                        }));
+                        //
                         items.push(new contextmenu.ButtonContextItem("Delete", () => {
 
-                        }))
+                        }));
                     });
                 }
             }
@@ -203,6 +219,11 @@ class BlockTab extends tabpane.ElementTab{
     block;
 
     /**
+     * @type PanelTabPane
+     */
+    pane;
+
+    /**
      * @param blockFile {BlockFile}
      */
     constructor(blockFile) {
@@ -217,83 +238,34 @@ class BlockTab extends tabpane.ElementTab{
         let contentLeft = document.createElement('div');
         contentLeft.classList.add("element-content-left", "element-content-tabs");
 
-        {
-            let section = document.createElement('div');
-            section.classList.add("content-section");
-            // * HEADER
-            let header = document.createElement('h2');
-            header.innerHTML = "Properties";
-            utils.addChild(section, header);
+        // * PANE CONTENT
+        let paneContent = document.createElement('div');
+        paneContent.classList.add("pane-content");
+        let paneHolder = document.createElement('div');
+        paneHolder.classList.add("pane-holder");
+        utils.addChild(contentLeft, paneContent, paneHolder);
 
-            let form = new Form(section);
-            form.push();
-            let name = new forms.FormField('name', "Codename");
-            name.setValue(this.blockFile.getName());
-            let displayName = new forms.FormField('display_name','Display Name');//todo display name
-            displayName.bottomHTML = "More languages are available in Languages tab.";
-            form.addEntries(name, displayName);
-            form.pop()
+        // * PANE
+        this.pane = new tabpane.PanelTabPane();
+        this.pane.type = "LEFT";
+        this.pane.push(paneHolder, paneContent);
 
-            utils.addChild(contentLeft, section);
-        }
-        {
-            let section = document.createElement('div');
-            section.classList.add("content-section");
-            // * HEADER
-            let header = document.createElement('h2');
-            header.innerHTML = "Models";
-            utils.addChild(section, header);
+        let tabData = new tabpane.AnimatedImageTab("Data",'data_gray.svg','data.svg',"pane-inside");
+        this.pane.addTab(tabData);
+        this.createDataTab(tabData.element);
 
-            let modelList = new modelmenu.ModelBlockList(section, this.block);
-            modelList.construct();
+        let tabLinks = new tabpane.AnimatedImageTab("Linked",'link_gray.svg','link.svg',"pane-inside");
+        this.pane.addTab(tabLinks);
+        this.createLinkTab(tabLinks.element);
 
-            utils.addChild(contentLeft, section);
-        }
-        {
-            let section = document.createElement('div');
-            section.classList.add("content-section","json-section");
-            // * HEADER
-            let header = document.createElement('h2');
-            header.innerHTML = "Blockstate";
-            utils.addChild(section, header);
+        let tabCode = new tabpane.AnimatedImageTab("Code",'code_gray.svg','code.svg',"pane-inside");
+        this.pane.addTab(tabCode);
+        this.createCodeTab(tabCode.element);
 
-            const json = require('jsoneditor')
+        this.pane.pop();
 
-            /**
-             * @type JSONEditor
-             */
-            let editor = new json(section,{
-                "modes": ['view'],
-                "autocomplete": {
-                    applyTo: ['value'],
-                    filter: "contain",
-                    trigger: "focus",
-                    getOptions: function (text, path) {
-                        if(path[path.length-1] === 'model'){
-                            let suggestions = [];
-                            for (let [key, model] of mod.modRegistry.blockModels) {
-                                suggestions.push(key);
-                            }
-                            return suggestions;
-                        }
-                        return [];
-                    }
-                }
-            }, JSON.parse(this.block.json));
 
-            utils.addChild(contentLeft, section);
-        }
-        {
-            let section = document.createElement('div');
-            section.classList.add("content-section");
-            // * HEADER
-            let header = document.createElement('h2');
-            header.innerHTML = "Dependencies";
-            utils.addChild(section, header);
-
-            utils.addChild(contentLeft, section);
-        }
-
+        //-------------------------------------------------------------------
         // ? RIGHT
         let contentRight = document.createElement('div');
         contentRight.classList.add("element-content-right");
@@ -305,11 +277,78 @@ class BlockTab extends tabpane.ElementTab{
         let modelContent = document.createElement('div');
         modelContent.classList.add("model-content");
 
+        {
+            //
+            let count = 0;
+            for (let model of this.block.models) {
+                for (let texture of model.getTextures()) {
+                    if(texture.exists()) {
+                        let img = document.createElement('img');
+                        img.src = texture.path;
+                        utils.addChild(modelContent, img);
+                        count++;
+                    }
+                }
+            }
+            if(count > 1){
+                modelContent.classList.add("lot");
+            }
+        }
+
         utils.addChild(contentRight, header, modelContent);
 
         //
         utils.addChild(content, contentLeft, contentRight);
     }
+
+    // # -----------------------
+    /**
+     * @param element {HTMLElement}
+     */
+    createDataTab(element){
+        modutils.createRegistrySection('Properties', section => {
+            let holder = document.createElement('div');
+            holder.classList.add('property-section');
+            modutils.createPropertySection('ID',(content) => {
+                content.innerText = this.block.location.location;
+                content.style.cursor = 'pointer';
+                utils.onClick(content, () => {
+                    utils.copyToClipboard(this.blockModel.location.location, content, 'under');
+                });
+            }, holder);
+            utils.addChild(section, holder)
+        }, element);
+
+        modutils.createRegistrySection('Modify', section => {
+            let form = new Form(section);
+            form.push();
+            let name = new forms.FormField('name', "Name");
+            name.setValue(this.blockFile.getName());
+            let displayName = new forms.FormField('display_name','Display Name');//todo display name
+            displayName.bottomHTML = "More languages are available in Languages tab.";
+            form.addEntries(name, displayName);
+            form.pop()
+        }, element);
+    }
+
+    /**
+     * @param element {HTMLElement}
+     */
+    createLinkTab(element){
+        modutils.createRegistrySection('Models', section => {
+            let modelList = new modelmenu.ModelBlockList(section, this.block);
+            modelList.construct();
+            }, element);
+    }
+
+    /**
+     * @param element {HTMLElement}
+     */
+    createCodeTab(element) {
+
+    }
+
+    // # -----------------------
 
     onOpen() {
         super.onOpen();

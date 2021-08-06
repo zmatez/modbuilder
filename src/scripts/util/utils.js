@@ -220,6 +220,18 @@ class Utils{
             }, 2000);
         }
     }
+
+
+    /**
+     * Check if element is visible on the screen
+     * @param elm {HTMLElement}
+     * @return {boolean}
+     */
+    static checkVisible(elm) {
+        let rect = elm.getBoundingClientRect();
+        let viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+        return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
+    }
 }
 
 module.exports.utils = Utils;
@@ -847,17 +859,6 @@ function appendScrollbarWithOptions(callback, options, ...elements){
  */
 function appendScrollbarImmediately(elements, options = {}){
     return OverlayScrollbars(elements, options);
-}
-
-/**
- * Check if element is visible on the screen
- * @param elm {HTMLElement}
- * @return {boolean}
- */
-function checkVisible(elm) {
-    let rect = elm.getBoundingClientRect();
-    let viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
-    return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
 }
 
 /**

@@ -119,6 +119,18 @@ class MCCreator extends MainController{
                 }
             })
         })
+
+        // ? -------------------------------------------------------------------
+
+        this.receive('modal:create_folder',(data) => {
+            LOG.log("Creating folder")
+            let modal = ModalController.create("text",{
+                icon: 'create_folder.svg',
+                title: "Create new folder",
+                text: "Input desired folder's name"
+            },350,300);
+
+        })
     }
 
     onClose() {

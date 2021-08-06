@@ -286,6 +286,8 @@ body {
 .menu-content .tab-editor .right-box .editor-content-tab-holder {
   background-color: var(--color-accent-foreground-2);
   color: white;
+  position: relative;
+  z-index: 5;
 }
 .menu-content .tab-editor .right-box .editor-content {
   flex-grow: 1;
@@ -315,21 +317,34 @@ body {
 }
 .menu-content .tab-editor .right-box .editor-content .element-tab-content .element-content-left {
   width: 70%;
+  display: flex;
+  flex-flow: row;
+  position: relative;
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .element-content-left .pane-content {
+  flex-grow: 1;
   padding: 7px;
   overflow-y: auto;
+  position: relative;
+  width: calc(100% - 45px);
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .element-content-left .pane-content .pane-inside {
+  width: 100%;
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .element-content-left .pane-content .pane-inside .form-field {
+  max-width: 400px;
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .element-content-left .pane-holder {
+  width: 45px;
+  background-color: var(--color-accent-foreground-2);
+  box-shadow: 0 0 5px 0 var(--color-foreground-p25);
+  position: relative;
+  height: 100%;
 }
 .menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section {
   padding-bottom: 15px;
   margin-bottom: 15px;
   border-bottom: 1px solid var(--color-dark-accent-contrast);
-}
-.menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section.json-section {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom: none;
-}
-.menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section .jsoneditor {
-  height: calc(20vh);
 }
 .menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section .property-section {
   margin: 5px;
@@ -368,9 +383,27 @@ body {
 .menu-content .tab-editor .right-box .editor-content .element-tab-content .element-content-right .model-content {
   flex-grow: 1;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   background-color: var(--color-superdark);
+  gap: 10px;
+  overflow-y: auto;
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .element-content-right .model-content img {
+  width: 80%;
+  object-fit: contain;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .element-content-right .model-content img:hover {
+  border-color: var(--color-dark-accent-foreground-2);
+  background-color: var(--color-background-2);
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .element-content-right .model-content.lot img {
+  width: 40%;
 }
 .menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section h1, .menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section h2, .menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section h3 {
   margin: 0 0 5px;

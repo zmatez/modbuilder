@@ -1318,6 +1318,20 @@ class Texture extends IRegistryEntry{
         }
     }
 
+    /**
+     * @param callback {function(number, number)}
+     */
+    size(callback){
+        const size = require('image-size');
+        size(this.path, (e, r) => {
+            if(e){
+                callback(-1,-1);
+            }else{
+                callback(r.width, r.height);
+            }
+        })
+    }
+
     // * ---------------------------
     serialize(){
         return {

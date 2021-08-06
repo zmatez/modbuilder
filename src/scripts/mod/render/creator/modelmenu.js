@@ -335,7 +335,7 @@ class TextureVisual extends IListVisual {
         }
         utils.addChild(this.element, img);
 
-        let tooltip = new tooltips.TextTooltip(img, this.texture == null ? "null" : this.texture.path);
+        let tooltip = new tooltips.TextureTooltip(img, this.texture);
         tooltip.applyHover(this.element)
 
         return this.element;

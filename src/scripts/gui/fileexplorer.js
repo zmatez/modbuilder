@@ -199,6 +199,8 @@ class FileExplorer extends AbstractFileExplorer{
     controlClicked = false;
     shiftClicked = false;
 
+    interval;
+
     /**
      * @param parent {HTMLElement}
      * @param callbacks {{}}
@@ -217,7 +219,23 @@ class FileExplorer extends AbstractFileExplorer{
         document.body.addEventListener('keyup', (e) => {
             this.controlClicked = e.ctrlKey;
             this.shiftClicked = e.shiftKey;
-        })
+        });
+
+        this.createUpdater();
+    }
+
+    createUpdater(){
+        let ms = 0;
+        this.interval = setInterval(() => {
+            if(document.activeElement === this.parent) {
+                for (let allChild of this.allChilds) {
+                    if (allChild instanceof OpenableFile) {
+                        allChild.update(ms);
+                    }
+                }
+            }
+            ms += 100;
+        }, 100);
     }
 
     render(){
@@ -783,16 +801,32 @@ class OpenableFile extends File{
         this.element.classList.remove("file-opened")
     }
 
+    update(ms){
+
+    }
+
     get isOpened(){
         return this.element.classList.contains('file-opened')
     }
 }
 
 class BlockFile extends OpenableFile{
+    /**
+     * @type HTMLImageElement
+     */
+    icon;
+    /**
+     * @type HTMLImageElement
+     */
+    iconPreview;
+
     get blockName(){
         return this.data.value;
     }
 
+    /**
+     * @return {?Block}
+     */
     getBlock(){
         return mod.modRegistry.getBlock(this.blockName);
     }
@@ -809,8 +843,12 @@ class BlockFile extends OpenableFile{
 
         this.createElement();
 
-        let icon = document.createElement('img');
-        icon.src = this.getIcon();
+        this.icon = document.createElement('img');
+        this.icon.src = this.getIcon();
+
+        this.iconPreview = document.createElement('img');
+
+        this.updateIcon();
 
         this.text = document.createElement('span');
         this.text.classList.add('title');
@@ -819,7 +857,7 @@ class BlockFile extends OpenableFile{
             this.text.style.color = 'red'
         }
 
-        utils.addChild(this.element, icon, this.text);
+        utils.addChild(this.element, this.icon, this.iconPreview, this.text);
 
         if(block == null || !block.valid){
             let errors = document.createElement('div');
@@ -834,6 +872,57 @@ class BlockFile extends OpenableFile{
         }
 
         return this.element;
+    }
+
+    isVisible = false;
+    update(ms){
+        if(this.element == null){
+            return
+        }
+        if((ms % 10 === 0 && ms % 3 === 0) || !this.isVisible){
+            if(utils.checkVisible(this.element)){
+                this.isVisible = true;
+                this.updateIcon();
+            }else{
+                this.isVisible = false;
+            }
+        }
+    }
+
+    currentModel = 0;
+    currentTexture = 0;
+    updateIcon(){
+        let block = this.getBlock();
+
+        let model = block.models[this.currentModel];
+        let exists = false;
+        if(model != null) {
+            let textures = model.getTextures();
+            let texture = textures[this.currentTexture];
+
+            exists = texture != null && texture.exists();
+            this.iconPreview.src = !exists ? utils.getIcon('block.svg') : texture.path;
+
+            if(this.currentTexture < textures.length-1){
+                this.currentTexture ++;
+            }else{
+                this.currentTexture = 0;
+                if(this.currentModel < block.models.length-1){
+                    this.currentModel ++;
+                }else{
+                    this.currentModel = 0;
+                }
+            }
+        }else{
+            this.iconPreview.src = utils.getIcon('block.svg');
+        }
+
+        if(!exists){
+            this.icon.style.filter = 'saturate(0.4)';
+            this.iconPreview.style.filter = 'saturate(0.2)';
+        }else{
+            this.icon.style.filter = 'inherit';
+        }
     }
 }
 module.exports.BlockFile = BlockFile;

@@ -515,3 +515,69 @@ class FormTooltip extends Tooltip{
 }
 
 tooltips.FormTooltip = FormTooltip;
+
+class TextureTooltip extends Tooltip{
+    /**
+     * @type Texture
+     */
+    texture;
+
+    constructor(parent, texture) {
+        super(parent);
+        this.texture = texture;
+    }
+
+    construct() {
+        this.element = document.createElement('div');
+        this.element.classList.add("text-tooltip","texture-tooltip");
+
+        let exists = this.texture.exists();
+
+        let img = document.createElement('img');
+        img.src = exists ? this.texture.path : utils.getIcon('texture.svg');
+        if(!exists){
+            img.style.filter = 'saturate(40%)';
+        }
+        utils.addChild(this.element, img);
+
+        let headerName = document.createElement('h5');
+        headerName.innerText = "Name";
+        let name = document.createElement('div');
+        name.classList.add("data");
+        name.innerText = this.texture.name;
+        utils.addChild(this.element, headerName, name);
+
+        let headerLocation = document.createElement('h5');
+        headerLocation.innerText = "Location";
+        let location = document.createElement('div');
+        location.classList.add("data");
+        location.innerText = this.texture.location.location;
+        utils.addChild(this.element, headerLocation, location);
+
+        if(exists){
+            let headerSize = document.createElement('h5');
+            headerSize.innerText = "Size";
+            let size = document.createElement('div');
+            size.classList.add("data");
+            size.innerText = "Calculating...";
+            this.texture.size((w, h) => {
+                size.innerText = w + "x" + h;
+            })
+            utils.addChild(this.element, headerSize, size);
+        }else{
+            let headerError = document.createElement('h5');
+            headerError.innerText = "Error";
+            let error = document.createElement('div');
+            error.classList.add("data");
+            error.innerText = "Texture does not exist.";
+            utils.addChild(this.element, headerError, error);
+        }
+
+        let button = new forms.Button("Go to file",() => {
+
+        });
+        button.addTo(this.element);
+    }
+}
+
+tooltips.TextureTooltip = TextureTooltip;

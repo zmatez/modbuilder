@@ -50,7 +50,7 @@ class RendererController{
     //------------------
     /**
      * @param channel {string}
-     * @param data {string}
+     * @param data {*}
      * @return {*}
      */
     sendMessage(channel, data){
