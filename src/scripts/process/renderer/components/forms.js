@@ -524,6 +524,10 @@ class Button{
      * @type {boolean}
      */
     transparent = false;
+    /**
+     * @type {boolean}
+     */
+    disabled = false;
 
     /**
      * @param text {string}
@@ -548,6 +552,7 @@ class Button{
         {
             this.button = document.createElement('button');
             this.button.classList.add("button");
+            this.button.disabled = this.disabled;
             if(this.transparent){
                 this.button.classList.add("button-transparent");
             }
@@ -588,6 +593,11 @@ class Button{
      */
     addAction(action){
         this.action.push(action);
+    }
+
+    setDisable(disable){
+        this.disabled = disable;
+        this.button.disabled = this.disabled;
     }
 }
 

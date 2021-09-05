@@ -48,6 +48,10 @@
     background-color: transparent;
 }
 
+.button:disabled{
+    filter: saturate(10%);
+}
+
 .button-loading{
     animation: buttonLoading 0.5s infinite;
 }

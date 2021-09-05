@@ -1,4 +1,5 @@
 global.utils = require('../util/utils.js').utils;
+global.dragAndDrop = require('../util/utils.js').dragAndDrop;
 global.LOG = require('./logger.js').LOG;
 global.ComponentUtils = require('../process/renderer/components/components.js').ComponentUtils;
 const {Form, el} = require('../process/renderer/components/forms.js');

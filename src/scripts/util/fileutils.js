@@ -25,6 +25,7 @@ class FileUtils{
     static getFileExplorer(path){
         const e = require('../gui/fileexplorer');
         let explorer = new e.AbstractFileExplorer();
+        explorer.parentPath = path;
         const read = (dir, folder = null) => {
             for (let file of fs.readdirSync(dir)) {
                 let p = dir + "/" + file;
@@ -53,6 +54,7 @@ class FileUtils{
     static getFileExplorerFromPathList(list){
         const e = require('../gui/fileexplorer');
         let explorer = new e.AbstractFileExplorer();
+        //todo explorer.parentPath = path;
 
 
         for (let entry of list) {
@@ -120,6 +122,9 @@ class FileUtils{
 
                 if(resource != null){
                     entryPath = (path === 'assets' ? resource.assetsPath : resource.dataPath) + "/" + folderName;
+                    if(explorer.parentPath == null){
+                        explorer.parentPath = entryPath;
+                    }
                     folderPath = "resources/" + resource.codename + "/";
                     let movedIgnoreFolders = [];
                     for (let num of ignoreFolders) {

@@ -9,20 +9,18 @@
 .explorer-toolbar {
     position: absolute;
     left: 0;
-    right: 0;
+    right: 6px;
     bottom: 0;
-    background-color: var(--color-accent-foreground-2);
+    background-color: var(--color-background-2);
+    border-top: 1px solid var(--color-accent-contrast-2);
     color: white;
     display: flex;
     flex-flow: row;
     padding: 5px;
     height: 50px;
-    .buttons {
-        display: flex;
-        flex-flow: row;
-        align-items: center;
-        justify-content: flex-end;
-        flex-grow: 1;
+    .icon-button-container{
+        position: absolute;
+        right: 0;
     }
     .icon-button {
         filter: invert(0.7);
@@ -46,6 +44,7 @@
     overflow: auto;
     flex-grow: 1;
     outline: none;
+    padding-bottom: 200px;
     .explorer-element {
         display: flex;
         flex-flow: row;
@@ -73,11 +72,27 @@
                 display: block;
             }
         }
+
+        &.dragover{
+            background-color: var(--color-element-dragover);
+        }
+        &.drag-success{
+            background-color: var(--color-status-success-transparent);
+        }
+        &.drag-failure{
+            background-color: var(--color-status-fail-transparent);
+        }
     }
     &:focus {
         .explorer-element {
             &.selected {
-                background-color: var(--color-accent-contrast);
+                background-color: var(--color-file-select);
+            }
+        }
+        .folder-holder.selected {
+            background-color: var(--color-file-select);
+            .folder-content {
+                background-color: var(--color-folder-select);
             }
         }
     }
@@ -143,6 +158,22 @@
         }
         &.errors-folder{
             background-color: rgba(255, 41, 66,0.2);
+        }
+        &:hover {
+            background-color: var(--color-foreground-p10);
+        }
+        &.selected {
+            background-color: var(--color-accent-hover);
+        }
+
+        &.dragover{
+            background-color: var(--color-element-dragover);
+        }
+        &.drag-success{
+            background-color: var(--color-status-success-transparent);
+        }
+        &.drag-failure{
+            background-color: var(--color-status-fail-transparent);
         }
     }
 }

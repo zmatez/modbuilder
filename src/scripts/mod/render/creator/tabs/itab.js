@@ -52,6 +52,14 @@ class ITab {
     }
 
     /**
+     * @param parent {?ExplorerParent}
+     * @param event {Event}
+     */
+    createContextMenu(parent, event){
+
+    }
+
+    /**
      * @param element {HTMLElement}
      */
     emptyHTML(element){

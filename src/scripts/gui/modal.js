@@ -349,7 +349,7 @@ class ActionModal extends ModalRenderer{
     draw(parent, id, data) {
         let icon = document.createElement('img');
         icon.classList.add("modal-icon");
-        icon.src = "../../../assets/icons/" + data['icon'];
+        icon.src = "../../../../assets/icons/" + data['icon'];
         utils.addChild(parent, icon);
 
         let title = document.createElement('div');
@@ -413,7 +413,6 @@ class ResourcesModal extends ModalRenderer{
      * @param data {Object.<string, ModResource>}
      */
     draw(parent, id, data) {
-        console.log("data: " + JSON.stringify(data) );
         parent.classList.add("modal-resources");
 
         let title = document.createElement('h1');
@@ -429,7 +428,6 @@ class ResourcesModal extends ModalRenderer{
 
         this.drawList(list, id, data);
         this.onAction(id, 'update', (data) => {
-            console.log("new data: " + JSON.stringify(data) );
             this.drawList(list, id, data);
         });
 
@@ -507,7 +505,7 @@ class TextModal extends ModalRenderer{
     draw(parent, id, data) {
         let icon = document.createElement('img');
         icon.classList.add("modal-icon");
-        icon.src = "../../../assets/icons/" + data['icon'];
+        icon.src = "../../../../assets/icons/" + data['icon'];
         utils.addChild(parent, icon);
 
         let title = document.createElement('div');
@@ -548,10 +546,15 @@ class TextModal extends ModalRenderer{
 
         let okButton = new forms.Button(okText, () => {
             if(okAction != null){
-                this.sendAction(id, okAction)
+                this.sendAction(id, okAction,input.getValue())
             }
             this.close(parent, id);
         });
+        okButton.disabled = true;
+
+        input.addChangeListener((f) => {
+            okButton.setDisable(f.getValue() === "")
+        })
 
         let cancelText = data['text2'];
         if(cancelText == null){
@@ -564,7 +567,7 @@ class TextModal extends ModalRenderer{
                 this.sendAction(id, cancelAction)
             }
             this.close(parent, id);
-        });
+        });//file:///E:/Programowanie/NodeJS%20Projects/modbuilder/src/scripts/process/assets/icons/create_folder.svg
 
         okButton.addTo(buttons);
         cancelButton.addTo(buttons);

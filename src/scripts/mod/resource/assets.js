@@ -775,7 +775,7 @@ class Block extends IRegistryEntry{
 
     get json(){
         if(isMain){
-            return fs.readFileSync(this.path,'utf-8');
+            return fs.readFileSync(this.path,{encoding: 'utf-8', flag: 'r'});
         }else{
             return this.jsonRemote
         }

@@ -1,0 +1,55 @@
+$jse-white: #36393F !default;
+$jse-grey: #34373c !default;
+$jse-light-bg: #2a3034 !default;
+$jse-blue: #512446 !default;
+$jse-content-color: #d2d2d4 !default;
+
+$jse-string: #4fb86f !default;
+$jse-number: #348ccf !default;
+$jse-boolean: #ec701d !default;
+$jse-null: #5b3dc8 !default;
+$jse-unit: $jse-null !default;
+$jse-entity: #BF78CC !default;
+$jse-comment: #318f67 !default;
+$jse-class: #e9ad16 !default;
+$jse-color-value: $jse-content-color !default;
+$jse-invalid: #d21f1f !default;
+$jse-readonly: #808080 !default;
+$jse-empty: #605860 !default;
+$jse-preview: #404040 !default;
+$jse-busy: #47544f !default;
+$jse-busy-border-color: #59857f !default;
+
+$jse-error: #ee2e2e70 !default;
+$jse-separator: #4f4f4f !default;
+$jse-highlight-bg: #545454 !default;
+$jse-highlight-border-color: #676767 !default;
+
+$jse-popover-bg: #4c4c4c !default;
+$jse-bar-bg: $jse-light-bg !default;
+$jse-bar-border: $jse-empty !default;
+
+$jse-menu-color: $jse-empty !default;
+$jse-cursor: #e5e5e5 !default;
+$jse-selection: #3553b8 !default;
+$jse-step: #433881 !default;
+$jse-bracket: $jse-empty !default;
+$jse-active-line: #434343 !default;
+$jse-gutter-active-line: #535353 !default;
+$jse-ace-invisible: #4c4c4c !default;
+$jse-ace-variable: #d9d9d9;
+$jse-contextmenu-color: #e7e7e7 !default;
+
+$jse-box-shadow: 2px 2px 12px rgba(128, 128, 128, 0.3) !default;
+$jse-box-shadow-sm: 0 0 5px rgba(0, 0, 0, 0.4) !default;
+$jse-box-shadow-inner: inset 0 0 10px rgba(128, 128, 128, 0.5) !default;
+
+$jse-date: #5f5f5f !default;
+
+$jse-font: Poppins, sans-serif !default;
+$jse-font-mono: "dejavu sans mono", "droid sans mono", consolas, monaco, "lucida console", "courier new", courier,
+monospace, sans-serif !default;
+$jse-font-size: 10pt !default;
+
+$jse-icons: "../../../../node_modules/jsoneditor/src/scss/img/jsoneditor-icons.svg" !default;
+$jse-icons-url: url($jse-icons) !default;

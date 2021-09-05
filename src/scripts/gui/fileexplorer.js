@@ -1,4 +1,10 @@
 class AbstractFileExplorer{
+
+    /**
+     * @type ?string
+     */
+    parentPath;
+
     /**
      * @type ExplorerParent[]
      */
@@ -25,6 +31,17 @@ class AbstractFileExplorer{
         element.fileExplorer = this;
         return element;
     }
+    /**
+     * Add if you want to MOVE from ROOT to any other folder
+     * @return ExplorerParent
+     * @param element {ExplorerParent}
+     */
+    addChildSilent(element){
+        this.childs.push(element);
+        element.parent = null;
+        element.fileExplorer = this;
+        return element;
+    }
 
     /**
      * @param element {ExplorerParent}
@@ -33,6 +50,14 @@ class AbstractFileExplorer{
         const {utils} = require('./../util/utils.js');
         utils.removeFromArray(this.childs, element);
         utils.removeFromArray(this.allChilds, element);
+    }
+    /**
+     * Remove if you want to MOVE from ROOT to any other folder
+     * @param element {ExplorerParent}
+     */
+    removeChildSilent(element){
+        const {utils} = require('./../util/utils.js');
+        utils.removeFromArray(this.childs, element);
     }
 
     /**
@@ -63,8 +88,12 @@ class AbstractFileExplorer{
      */
     createFolder(name, path,parent = null){
         if(path == null && parent == null){
+            path = this.parentPath;
+        }
+        if(path == null && parent == null){
             return null;
         }
+
         let folder = new Folder(name, path == null ? parent.path : path);
         this.addChild(folder);
         return folder;
@@ -159,11 +188,13 @@ class AbstractFileExplorer{
         }
 
         if(parent == null){
+            explorer.parentPath = data.parentPath;
             explorer.childs = childs;
             explorer.allChilds = allChilds;
             explorer.requireUnique = data.requireUnique;
             return explorer;
         }else{
+            explorer.parentPath = data.parentPath;
             explorer.childs = childs;
             explorer.allChilds = allChilds;
             explorer.parent = parent;
@@ -267,18 +298,45 @@ class FileExplorer extends AbstractFileExplorer{
     }
 
     createFolder(name, path, parent = null, callback = null) {
+        console.log("Creating folder " + name);
         let folder = super.createFolder(name, path, parent);
-        this.sort();
-        this.renderAsync(() => {
+        /*this.renderAsync(() => {
             utils.scrollToElement(this.parent, folder.element);
             this.onClick(folder, null);
             if(callback != null){
                 callback()
             }
-        });
+        });*/
+        this.renderElement(folder);
         return folder;
     }
 
+    /**
+     * Render added element without re-rendering whole explorer
+     * @param element {ExplorerParent}
+     */
+    renderElement(element){
+        if(element.element != null){
+            element.element.remove()
+        }
+        this.sort();
+        let parent = element.parent == null ? this : element.parent;
+        let index = parent.childs.indexOf(element);
+        let beforeElement = index + 1 < parent.childs.length ? parent.childs[index+1] : null;
+        if(parent === this) {
+            if (beforeElement != null) {
+                this.parent.insertBefore(element.render(), beforeElement.element);
+            } else {
+                this.parent.insertAdjacentElement('beforeend', element.render());
+            }
+        }else{
+            if (beforeElement != null) {
+                parent.folderContent.insertBefore(element.render(), beforeElement.element);
+            } else {
+                parent.folderContent.insertAdjacentElement('beforeend', element.render());
+            }
+        }
+    }
 
     sort(){
         for (let child of this.childs) {
@@ -286,9 +344,16 @@ class FileExplorer extends AbstractFileExplorer{
                 child.sort();
             }
         }
-        this.childs.sort((a, b) => {
+
+        /**
+         * @type {function(ExplorerParent, ExplorerParent): number}
+         */
+        const sort = ((a, b) => {
             return a.order === b.order ? (a.getName() < b.getName() ? -1 : 1) : (a.order < b.order ? 1 : -1);
         })
+
+        this.childs.sort(sort);
+        this.allChilds.sort(sort);
     }
 
     search(text){
@@ -335,6 +400,7 @@ class FileExplorer extends AbstractFileExplorer{
      * @param event {Event}
      */
     onClick(element, event){
+        console.log("Click on " + element.getName())
         if(this.shiftClicked && this.selected.length > 0){
             let firstClick = this.selected[0];
             let firstClickIndex = firstClick.element.offsetTop;
@@ -384,6 +450,14 @@ class FileExplorer extends AbstractFileExplorer{
             throw new Error('Unable to open file: no callback specified');
         }
     }
+    /**
+     * Overridable
+     * @param element {ExplorerParent}
+     * @param event {Event}
+     */
+    onContextClick(element, event){
+
+    }
 
     /**
      * @param explorer {AbstractFileExplorer}
@@ -393,6 +467,7 @@ class FileExplorer extends AbstractFileExplorer{
      */
     static fromAbstract(explorer, parent, callbacks){
         let fileExplorer = new FileExplorer(parent, callbacks);
+        fileExplorer.parentPath = explorer.parentPath;
         fileExplorer.childs = explorer.childs;
         fileExplorer.requireUnique = explorer.requireUnique;
         return fileExplorer;
@@ -458,6 +533,13 @@ class ExplorerParent{
         this.fileExplorer.onClick(this, event);
     }
 
+    /**
+     * @param event {Event}
+     */
+    onContextClick(event){
+        this.fileExplorer.onContextClick(this, event);
+    }
+
     select(){
         this.element.classList.add('selected');
     }
@@ -512,6 +594,43 @@ class ExplorerParent{
     get order(){
         return 0;
     }
+
+    /**
+     * @param newParent {?Folder}
+     */
+    move(newParent = null){
+        //remove from old
+        if(this.parent == null){
+            this.fileExplorer.removeChildSilent(this);
+        }else{
+            this.parent.removeChildSilent(this)
+        }
+
+        //add to new
+        if(newParent == null){
+            this.fileExplorer.addChildSilent(this);
+        }else{
+            newParent.addChildSilent(this);
+        }
+
+
+        //force render
+        this.fileExplorer.renderElement(this);
+    }
+
+    /**
+     * @param newName {string}
+     */
+    rename(newName){
+        //!todo
+    }
+
+    /**
+     * @param withDependencies {boolean} should delete dependent files like models or textures if they would be unused
+     */
+    delete(withDependencies = false){
+        //!todo
+    }
 }
 
 class Folder extends ExplorerParent{
@@ -533,6 +652,13 @@ class Folder extends ExplorerParent{
     childs = [];
 
     /**
+     * Is folder locked for new contents
+     * e.g resource folder
+     * @type {boolean}
+     */
+    locked = false;
+
+    /**
      * @return ExplorerParent
      * @param element {ExplorerParent}
      */
@@ -545,12 +671,33 @@ class Folder extends ExplorerParent{
     }
 
     /**
+     * Moving from this folder to any other
+     * @return ExplorerParent
+     * @param element {ExplorerParent}
+     */
+    addChildSilent(element){
+        this.childs.push(element);
+        element.fileExplorer = this.fileExplorer;
+        element.parent = this;
+        return element;
+    }
+
+    /**
      * @param element {ExplorerParent}
      */
     removeChild(element){
         const {utils} = require('./../util/utils.js');
         utils.removeFromArray(this.childs, element);
         utils.removeFromArray(this.fileExplorer.allChilds, element);
+    }
+
+    /**
+     * Moving from this folder to any other
+     * @param element {ExplorerParent}
+     */
+    removeChildSilent(element){
+        const {utils} = require('./../util/utils.js');
+        utils.removeFromArray(this.childs, element);
     }
 
     getIcon() {
@@ -588,6 +735,10 @@ class Folder extends ExplorerParent{
         })
         utils.onDoubleClick(this.folder,(e) => {
             this.onDoubleClick(e);
+        });
+        utils.onContextClick(this.folder,(e) => {
+            e.preventDefault();
+            this.onContextClick(e);
         })
 
         let collapse = document.createElement('img');
@@ -619,6 +770,38 @@ class Folder extends ExplorerParent{
 
         //
         utils.addChild(this.element, this.folder, this.folderContent)
+
+        ///
+        let drag = new dragAndDrop.draggable(this.folder);
+        drag.serialize = () => {
+            return JSON.stringify({
+                type: "folder",
+                index: this.fileExplorer.allChilds.indexOf(this)
+            })
+        };
+
+        drag.addDragStartEvent((e) => {
+            if(!this.fileExplorer.selected.includes(this)){
+                this.onClick(e);
+            }
+        })
+
+        let drop = new dragAndDrop.zone(this.element);
+        drop.analyzeData = (string) => {
+            let data = JSON.parse(string);
+            let type = data.type;
+            let index = data.index;
+
+            if(this.fileExplorer.selected.includes(this)){
+                return false;
+            }
+
+            for (let e of this.fileExplorer.selected) {
+                e.move(this);
+            }
+
+            return true;
+        }
 
         return this.element;
     }
@@ -667,6 +850,10 @@ class Folder extends ExplorerParent{
         return "plain";
     }
 
+    get order() {
+        return 1;
+    }
+
     serialize() {
         let childs = [];
         for (let child of this.childs) {
@@ -713,11 +900,59 @@ class File extends ExplorerParent{
         utils.onDoubleClick(this.element,(e) => {
             this.onDoubleClick(e);
         });
+        utils.onContextClick(this.element,(e) => {
+            e.preventDefault();
+            this.onContextClick(e);
+        })
 
         let openMark = document.createElement('img');
         openMark.classList.add("open-mark");
         openMark.src = utils.getIcon('arrow_collapse.svg');
-        utils.addChild(this.element, openMark)
+        utils.addChild(this.element, openMark);
+
+        let drag = new dragAndDrop.draggable(this.element);
+        drag.serialize = () => {
+            return JSON.stringify({
+                type: "file",
+                index: this.fileExplorer.allChilds.indexOf(this)
+            })
+        };
+
+        drag.addDragStartEvent((e) => {
+            if(!this.fileExplorer.selected.includes(this)){
+                this.onClick(e);
+            }
+        })
+
+        let drop = new dragAndDrop.zone(this.element);
+        drop.analyzeData = (string) => {
+            let data = JSON.parse(string);
+            let type = data.type;
+            let index = data.index;
+
+            if(this.fileExplorer.selected.includes(this)){
+                return false;
+            }
+            if(this.parent != null){
+                return false;
+            }
+            let allRoot = true;
+            for (let e of this.fileExplorer.selected) {
+                if(e.parent != null){
+                    allRoot = false;
+                    break;
+                }
+            }
+            if(allRoot){
+                return false;
+            }
+
+            for (let e of this.fileExplorer.selected) {
+                e.move();
+            }
+
+            return true;
+        }
     }
 
 
@@ -757,6 +992,11 @@ class File extends ExplorerParent{
 module.exports.File = File;
 
 class ResourceFolder extends Folder{
+    constructor(name, path) {
+        super(name, path);
+        this.locked = true;
+    }
+
     render() {
         let element = super.render();
         element.classList.add("resource-folder");
@@ -775,6 +1015,11 @@ class ResourceFolder extends Folder{
 module.exports.ResourceFolder = ResourceFolder;
 
 class ErrorsFolder extends Folder{
+    constructor(name, path) {
+        super(name, path);
+        this.locked = true;
+    }
+
     render() {
         let element = super.render();
         element.classList.add("errors-folder");

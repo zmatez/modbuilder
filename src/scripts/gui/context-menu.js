@@ -9,65 +9,33 @@ class ContextMenu{
     element;
 
     /**
-     * @type function(ContextItem[])
-     */
-    items;
-
-    /**
-     * @private
-     * @type {function(Event)}
-     * @param e {Event}
-     */
-    openListener = (e) => {
-        e.preventDefault();
-        if(e.target instanceof HTMLElement){
-            e.target.focus();
-        }
-        this.open(e);
-    };
-
-    /**
      * @param parent {HTMLElement}
      */
     constructor(parent) {
         this.parent = parent;
-        this.init();
     }
 
     /**
      * @param items {function(ContextItem[])}
-     */
-    setup(items){
-        this.items = items;
-    }
-
-    /**
-     * @private
-     */
-    init(){
-        this.parent.addEventListener('contextmenu', this.openListener);
-    }
-
-    remove(){
-        this.parent.removeEventListener('contextmenu', this.openListener)
-    }
-
-    /**
      * @param e {Event}
-     * @private
      */
-    open(e){
-        if(this.items === null){
+    open(items, e){
+        if(items === null){
             throw new Error("Context menu not initialized - no items defined.");
         }
 
-        let items = [];
-        this.items(items);
+        e.preventDefault();
+        if(e.target instanceof HTMLElement){
+            e.target.focus();
+        }
+
+        let constructItems = [];
+        items(constructItems);
 
         this.element = document.createElement('div');
         this.element.classList.add('context-menu');
 
-        for (let item of items) {
+        for (let item of constructItems) {
             item.construct();
             item.ready();
             utils.addChild(this.element, item.element);

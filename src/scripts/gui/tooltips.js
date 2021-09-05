@@ -174,6 +174,12 @@ class Tooltip {
         }else if(this.placementY === "center"){
             top = (bounds.top - this.element.offsetHeight / 2 + bounds.height / 2)
         }
+        if(this.element.offsetHeight !== 0){
+            let fullTop = top + this.element.offsetWidth;
+            if(fullTop > document.body.offsetHeight){
+                top = document.body.offsetHeight - this.element.offsetHeight;
+            }
+        }
         let left = bounds.left;
         if(this.placementX === "left"){
             left = bounds.left;
@@ -185,8 +191,8 @@ class Tooltip {
 
         let showWay = "left";
 
-        if((left + this.element.offsetWidth + 10) > document.body.scrollWidth){
-            left = document.body.scrollWidth - 10 - this.element.offsetWidth;
+        if((left + this.element.offsetWidth + 10) > document.body.offsetWidth){
+            left = document.body.offsetWidth - 10 - this.element.offsetWidth;
             showWay = "right";
         }
 

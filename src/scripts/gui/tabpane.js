@@ -706,20 +706,52 @@ class ElementTab extends CloseableColoredTab{
     icon;
 
     /**
+     * @type CreatorController
+     */
+    controller;
+
+    /**
      * @type HTMLElement
      */
     iconElement;
 
     /**
+     * @type HTMLElement
+     */
+    pointElement;
+
+    /**
+     * @type {string[]}
+     */
+    saveElements = [];
+
+    /**
+     * @type HTMLElement
+     */
+    saveDialog;
+
+    ////
+    /**
+     * @type {function()[]}
+     */
+    saveEvents = [];
+    /**
+     * @type {function()[]}
+     */
+    resetEvents = [];
+
+    /**
      * @param name {string}
      * @param icon {string}
      * @param color {string}
+     * @param controller {CreatorController}
      * @param classes {...string}
      */
-    constructor(name, icon, color, ...classes) {
+    constructor(name, icon, color, controller, ...classes) {
         super(name, icon, color, ...classes);
         this.icon = icon;
         this.date = new Date(Date.now());
+        this.controller = controller;
     }
 
     construct() {
@@ -729,6 +761,34 @@ class ElementTab extends CloseableColoredTab{
         this.iconElement.classList.add("tab-small-icon");
 
         this.tab.insertAdjacentElement('afterbegin',this.iconElement);
+
+        this.pointElement = document.createElement('div');
+        this.pointElement.classList.add('tab-point');
+        this.pointElement.classList.add("green");
+        utils.addChild(this.tab,this.pointElement);
+
+        //dialog
+        this.saveDialog = document.createElement('div');
+        this.saveDialog.classList.add("save-dialog");
+        this.saveDialog.style.display = 'none';
+        let saveText = document.createElement('span');
+        saveText.innerHTML = "You have unsaved changes in this file";
+        utils.addChild(this.saveDialog,saveText);
+        let saveButton = new forms.Button('Save',() => {
+            for (let saveEvent of this.saveEvents) {
+                saveEvent();
+            }
+            this.markSaved(null);
+        });
+        saveButton.addTo(this.saveDialog);
+        let resetButton = new forms.Button('Reset',() => {
+            for (let resetEvent of this.resetEvents) {
+                resetEvent();
+            }
+            this.markSaved(null);
+        },null,true);
+        resetButton.addTo(this.saveDialog);
+        utils.addChild(this.element, this.saveDialog)
     }
 
     onOpen() {
@@ -741,6 +801,70 @@ class ElementTab extends CloseableColoredTab{
      */
     make(content){
 
+    }
+
+    /**
+     * @param code {string}
+     */
+    markDirty(code){
+        if(!this.saveElements.includes(code)) {
+            if (this.saveElements.length === 0) {
+                this.pointElement.classList.add("red");
+                this.pointElement.classList.remove("green");
+
+                this.saveDialog.style.display = 'inherit';
+
+                this.saveDialog.classList.add("open");
+                this.saveDialog.classList.remove("close");
+            }
+
+            this.saveElements.push('code');
+        }
+    }
+
+    /**
+     * @param code {string}
+     */
+    markSaved(code) {
+        if(code != null && this.saveElements.includes(code)) {
+            utils.removeFromArray(this.saveElements, code);
+            if (this.saveElements.length === 0) {
+                this.pointElement.classList.remove("red");
+                this.pointElement.classList.add("green");
+
+                this.saveDialog.classList.remove("open");
+                this.saveDialog.classList.add("close");
+                setTimeout(() => {
+                    this.saveDialog.style.display = 'none';
+                },250)
+            }
+        }else if(code == null){
+            this.saveElements = [];
+            this.pointElement.classList.remove("red");
+            this.pointElement.classList.add("green");
+
+            this.saveDialog.classList.remove("open");
+            this.saveDialog.classList.add("close");
+            setTimeout(() => {
+                this.saveDialog.style.display = 'none';
+            },250)
+        }
+    }
+
+    //
+    /**
+     * For updating data in card after any change (new models etc)
+     */
+    refresh(){
+
+    }
+
+    //////////////////////
+    addSaveEvent(e){
+        this.saveEvents.push(e);
+    }
+    addResetEvent(e){
+        this.resetEvents.push(e);
     }
 }
 

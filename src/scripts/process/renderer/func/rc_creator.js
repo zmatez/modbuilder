@@ -220,6 +220,37 @@ class CreatorController extends RendererController{
         this.receive('data:reload', (data) => {
             this.assetProgress.start();
             this.reload();
+        });
+
+        // ? CREATE FOLDER
+        this.receive('modal:create_folder', (data) => {
+            let explorer = data.origin.explorer;
+            let index = data.origin.index;
+
+            /**
+             * @type ?FileExplorer
+             */
+            let rex;
+
+            switch (explorer){
+                case "block":
+                    rex = this.explorers.block;
+                    break;
+                case "blockModel":
+                    rex = this.explorers.blockModel;
+                    break;
+                case "item":
+                    rex = this.explorers.item;
+                    break;
+                case "texture":
+                    rex = this.explorers.texture;
+                    break;
+            }
+
+            if(rex != null){
+                let parent = rex.allChilds[index];
+                rex.createFolder(data.data,null,parent);
+            }
         })
     }
 

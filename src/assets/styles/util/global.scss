@@ -5,6 +5,19 @@
 @import "../components/fileexplorer.scss";
 @import "../../../../node_modules/overlayscrollbars/css/OverlayScrollbars.min.css";
 
+@import "../components/jsoneditor/reset";
+@import "../components/jsoneditor/variables";
+@import "../components/jsoneditor/autocomplete";
+@import "../components/jsoneditor/contextmenu";
+@import "../components/jsoneditor/editor";
+@import "../components/jsoneditor/menu";
+@import "../components/jsoneditor/navigationbar";
+@import "../components/jsoneditor/searchbox";
+@import "../components/jsoneditor/statusbar";
+@import "../components/jsoneditor/treepath";
+@import "../components/jsoneditor/selectr";
+@import "../components/jsoneditor/ace";
+
 :root {
     --color-background-total: #000000;
     --color-background: #36393F;
@@ -37,6 +50,11 @@
     --color-dark-accent-foreground: #ffe2b8;
     --color-dark-accent-foreground-2: #512446;
     --color-dark-accent-contrast: #3b3232;
+
+    --color-file-select: #385fa2;
+    --color-folder-select: #383fc1;
+    --color-element-dragover: rgba(96, 38, 157,0.5);
+
 
     --color-tooltip: #25292b;
 

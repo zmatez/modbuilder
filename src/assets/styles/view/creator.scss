@@ -201,16 +201,48 @@ body {
 
                         .pane-content{
                             flex-grow: 1;
-                            padding: 7px;
                             overflow-y: auto;
                             position: relative;
                             width: calc(100% - 45px);
 
                             .pane-inside{
                                 width: 100%;
+                                padding: 7px;
 
                                 .form-field{
                                     max-width: 400px;
+                                }
+
+                                &.json-panel{
+                                    padding: 0;
+
+                                    .json-save-button{
+                                        background-color: var(--color-accent-2);
+                                        border-radius: 50%;
+                                        box-shadow: 0 0 7px 0 var(--color-foreground-p25);
+                                        position: absolute;
+                                        right: 15px;
+                                        bottom: 15px;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        padding: 6px;
+                                        z-index: 5;
+
+                                        &:hover{
+                                            filter: brightness(1.1);
+                                        }
+
+                                        img{
+                                            width: 30px;
+                                            height: 30px;
+                                        }
+
+                                        &.grayscaled{
+                                            filter: saturate(0);
+                                            opacity: 0.5;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -279,23 +311,33 @@ body {
                             gap: 10px;
                             overflow-y: auto;
 
-                            img{
+                            .texture-view-holder{
                                 width: 80%;
                                 object-fit: contain;
-                                image-rendering: crisp-edges;
-                                image-rendering: pixelated;
-                                border: 2px solid transparent;
-
-                                transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                flex-shrink: 1;
 
                                 &:hover{
-                                    border-color: var(--color-dark-accent-foreground-2);
-                                    background-color: var(--color-background-2);
+                                    .texture-view-img {
+                                        border-color: var(--color-dark-accent-foreground-2);
+                                        background-color: var(--color-background-2);
+                                    }
+                                }
+
+                                .texture-view-img{
+                                    image-rendering: crisp-edges;
+                                    image-rendering: pixelated;
+                                    width: 100%;
+                                    height: 100%;
+                                    border: 2px solid transparent;
+                                    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
                                 }
                             }
 
                             &.lot{
-                                img{
+                                .texture-view-holder{
                                     width: 40%;
                                 }
                             }

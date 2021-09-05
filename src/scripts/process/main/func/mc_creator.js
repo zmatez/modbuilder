@@ -122,14 +122,47 @@ class MCCreator extends MainController{
 
         // ? -------------------------------------------------------------------
 
-        this.receive('modal:create_folder',(data) => {
-            LOG.log("Creating folder")
+        this.receive('modal:create_folder',(event, origin) => {
             let modal = ModalController.create("text",{
                 icon: 'create_folder.svg',
                 title: "Create new folder",
-                text: "Input desired folder's name"
+                text: "Input desired folder's name",
+                action1: "success"
             },350,300);
+            modal.onAction('success',(data) => {
+                this.sendMessage('modal:create_folder', {
+                    data: data,
+                    origin: origin
+                })
+            })
+        })
 
+        // ? -------------------------------------------------------------------
+        // # SAVES
+
+        this.receive('save:json', (event, data) => {
+            let type = data.type;
+            let location = data.location;
+            let path = data.file;
+            let content = data.content;
+
+            fs.writeFileSync(path,content,{
+                encoding: "utf-8"
+            });
+
+            if(type === "block"){
+                let block = this.mod.modRegistry.getBlock(location);
+                if(block != null){
+                    block.jsonRemote = content;
+                }
+            }
+
+            this.sendMessage('save:json', {
+                type: type,
+                location: location,
+                path: path,
+                success: true
+            })
         })
     }
 

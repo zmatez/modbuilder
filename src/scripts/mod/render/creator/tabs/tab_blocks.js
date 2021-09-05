@@ -22,6 +22,12 @@ class TabBlocks extends ITab{
      */
     openCallback;
 
+    //
+    /**
+     * @type HTMLElement
+     */
+    toolbar;
+
     createTab() {
         this.tab = new tabpane.AnimatedImageTab('Blocks','blocks_gray.svg','block.svg','tab-editor','tab-blocks');
         this.element = this.tab.element;
@@ -79,7 +85,7 @@ class TabBlocks extends ITab{
                 }
 
                 if(existingTab == null){
-                    let tab = new BlockTab(file);
+                    let tab = new BlockTab(file, this.controller);
                     this.contentPane.addTab(tab);
                     tab.clicked()
                 }else{
@@ -101,30 +107,10 @@ class TabBlocks extends ITab{
          */
         this.controller.callbacks.block = {
             open: this.openCallback,
-            render: (fx) => {
-                for (let file of fx.allChilds) {
-                    let contextMenu = new contextmenu.ContextMenu(file.element);
-                    contextMenu.setup((items) => {
-                        items.push(new contextmenu.MenuButtonContextItem("New", () => {}, (items) => {
-                            items.push(new contextmenu.ImageButtonContextItem("Block", utils.getIcon('block.svg'),() => {
-
-                            }));
-                            items.push(new contextmenu.ImageButtonContextItem("Folder", utils.getIcon('folder.svg'), () => {
-                                contextMenu.close();
-                                this.controller.sendMessage('modal:create_folder', {explorer: 'block', index: this.controller.explorers.block.allChilds.indexOf(file)});
-                            },true));
-                        }));
-                        //
-                        //items.push(new contextMenu.DividerContextItem());
-                        //
-                        items.push(new contextmenu.ButtonContextItem("Rename", () => {
-
-                        }));
-                        //
-                        items.push(new contextmenu.ButtonContextItem("Delete", () => {
-
-                        }));
-                    });
+            render: (explorer) => {
+                this.explorer = explorer;
+                explorer.onContextClick = (element, event) => {
+                    this.createContextMenu(element,event);
                 }
             }
         }
@@ -136,8 +122,9 @@ class TabBlocks extends ITab{
      * @return {HTMLDivElement}
      */
     createToolbar(searchCallback, newFolderCallback){
-        let toolbar = document.createElement('div');
-        toolbar.classList.add("explorer-toolbar");
+        this.toolbar = document.createElement('div');
+        this.toolbar.classList.add("explorer-toolbar");
+        this.toolbar.style.display = "none";
 
         let search = new forms.FormField('search-bar',"");
         search.placeholder = "Search";
@@ -145,63 +132,84 @@ class TabBlocks extends ITab{
             searchCallback(search.getValue());
         })
 
-        utils.addChild(toolbar, search.getElement());
+        utils.addChild(this.toolbar, search.getElement());
 
-        //buttons
-        let buttons = document.createElement('div');
-        buttons.classList.add('buttons');
 
-        function createButton(name, icon, action){
-            let button = new forms.IconButton(name, icon, action);
-            button.addTo(buttons);
-            return button;
-        }
-
-        createButton("New asset", "new_file.svg", () => {
-
+        let closeButton = new forms.IconButton("Close",'clear.svg',() => {
+            utils.fadeOut(this.toolbar,150);
         })
 
-        /**
-         * @type {?FormTooltip}
-         */
-        let newFolderTooltip = null;
-        createButton("New folder", "new_folder.svg", () => {
-            if(newFolderTooltip != null){
-                newFolderTooltip.hide();
-                newFolderTooltip = null;
-                return
+        closeButton.addTo(this.toolbar);
+
+        return this.toolbar;
+    }
+
+    createContextMenu(parent, e) {
+        if(parent != null){
+            if(parent instanceof explorer.File){
+                let contextMenu = new contextmenu.ContextMenu(parent.element);
+                contextMenu.open((items) => {
+                    items.push(new contextmenu.MenuButtonContextItem("New", () => {}, (items) => {
+                        items.push(new contextmenu.ImageButtonContextItem("Block", utils.getIcon('block.svg'),() => {
+
+                        }));
+                        items.push(new contextmenu.ImageButtonContextItem("Folder", utils.getIcon('folder.svg'), () => {
+                            contextMenu.close();
+                            this.controller.sendMessage('modal:create_folder', {explorer: 'block', index: this.explorer.allChilds.indexOf(parent)});
+                        },true));
+                    }));
+                    //
+                    //items.push(new contextMenu.DividerContextItem('test'));
+                    //
+                    items.push(new contextmenu.ButtonContextItem("Rename", () => {
+
+                    }));
+                    //
+                    items.push(new contextmenu.ButtonContextItem("Search...", () => {
+                        utils.fadeIn(this.toolbar,150);
+                    }));
+                    //
+                    items.push(new contextmenu.ButtonContextItem("Delete", () => {
+
+                    }));
+                },e);
+            }else if(parent instanceof explorer.Folder){
+                let contextMenu = new contextmenu.ContextMenu(parent.element);
+                if(parent instanceof explorer.ResourceFolder || parent in explorer.ErrorsFolder){
+                    contextMenu.open((items) => {
+                        items.push(new contextmenu.ButtonContextItem(parent.collapsed ? "Show contents" : "Collapse contents", () => {
+
+                        }));
+                    },e);
+                }else{
+                    contextMenu.open((items) => {
+                        items.push(new contextmenu.MenuButtonContextItem("New", () => {}, (items) => {
+                            items.push(new contextmenu.ImageButtonContextItem("Block", utils.getIcon('block.svg'),() => {
+
+                            }));
+                            items.push(new contextmenu.ImageButtonContextItem("Folder", utils.getIcon('folder.svg'), () => {
+                                contextMenu.close();
+                                this.controller.sendMessage('modal:create_folder', {explorer: 'block', index: this.explorer.allChilds.indexOf(parent)});
+                            },true));
+                        }));
+                        //
+                        //items.push(new contextMenu.DividerContextItem('test'));
+                        //
+                        items.push(new contextmenu.ButtonContextItem(parent.collapsed ? "Show contents" : "Collapse contents", () => {
+
+                        }));
+                        //
+                        items.push(new contextmenu.ButtonContextItem("Rename", () => {
+
+                        }));
+                        //
+                        items.push(new contextmenu.ButtonContextItem("Delete", () => {
+
+                        }));
+                    },e);
+                }
             }
-            newFolderTooltip = new tooltips.FormTooltip(buttons, "Add new folder", 'new_folder.svg', '', 'Create', 'Cancel', (form) => {
-                let name = form.serialize()['folder-name'];
-                newFolderCallback(name, () => {
-                    newFolderTooltip.hide();
-                });
-            }, 'media-folder-create', (element) => {
-                let form = new Form(element);
-                form.push();
-                let nameField = new forms.FormField('folder-name', "Name");
-                form.addEntries(nameField);
-                form.pop();
-                return form;
-            });
-            newFolderTooltip.placementY = "above";
-            newFolderTooltip.show();
-            newFolderTooltip.addHideEvent(() => {
-                newFolderTooltip = null;
-            })
-        })
-
-        createButton("Copy", "copy.svg", () => {
-
-        })
-
-        createButton("Delete", "delete.svg", () => {
-
-        })
-
-        utils.addChild(toolbar, buttons);
-
-        return toolbar;
+        }
     }
 }
 
@@ -225,9 +233,10 @@ class BlockTab extends tabpane.ElementTab{
 
     /**
      * @param blockFile {BlockFile}
+     * @param controller {CreatorController}
      */
-    constructor(blockFile) {
-        super(blockFile.getName(), blockFile.getIcon(), '45D32C');
+    constructor(blockFile, controller) {
+        super(blockFile.getName(), blockFile.getIcon(), '45D32C',controller);
         this.blockFile = blockFile;
         this.block = blockFile.getBlock();
     }
@@ -283,9 +292,15 @@ class BlockTab extends tabpane.ElementTab{
             for (let model of this.block.models) {
                 for (let texture of model.getTextures()) {
                     if(texture.exists()) {
+                        let div = document.createElement('div');
+                        div.classList.add("texture-view-holder");
                         let img = document.createElement('img');
+                        img.classList.add('texture-view-img');
                         img.src = texture.path;
-                        utils.addChild(modelContent, img);
+                        let tooltip = new tooltips.TextureTooltip(div,texture);
+                        tooltip.applyHover(div);
+                        utils.addChild(div,img);
+                        utils.addChild(modelContent, div);
                         count++;
                     }
                 }
@@ -345,7 +360,39 @@ class BlockTab extends tabpane.ElementTab{
      * @param element {HTMLElement}
      */
     createCodeTab(element) {
+        element.classList.add("json-panel");
+        const jsonEditor = require('jsoneditor');
+        const editor = new jsonEditor(element, {
+            mode: 'form',
+            modes: ['code', 'form', 'tree'],
+            onChange: () => {
+                if(editor.getText() !== this.block.json) {
+                    this.markDirty('json');
+                }
+            },
+            onModeChange: (o, n) => {
+                if(editor != null) {
+                    editor.expandAll();
+                }
+            }
+        });
+        editor.setText(this.block.json);
+        editor.expandAll();
 
+        this.addSaveEvent(() => {
+            this.block.jsonRemote = editor.getText();
+            this.controller.sendMessage('save:json',{
+                type: "block",
+                location: this.block.location.location,
+                file: this.block.path,
+                content: this.block.jsonRemote
+            })
+        })
+
+        this.addResetEvent(() => {
+            editor.setText(this.block.json);
+            editor.expandAll();
+        })
     }
 
     // # -----------------------

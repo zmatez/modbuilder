@@ -73,7 +73,7 @@ class MainController{
 
     /**
      * @param channel {string}
-     * @param callback {function(data: *)}
+     * @param callback {function(event: IpcMainEvent, data: *)}
      */
     receive(channel, callback){
         this.receiveEvents.push({
