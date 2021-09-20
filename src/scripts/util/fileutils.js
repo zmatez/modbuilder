@@ -118,22 +118,24 @@ class FileUtils{
                 }
 
                 let entryPath = "";
-                let folderPath = "errors/";
+                let folderName = "errors/"
+                let folderPath = folderName;
 
                 if(resource != null){
                     entryPath = (path === 'assets' ? resource.assetsPath : resource.dataPath) + "/" + folderName;
                     if(explorer.parentPath == null){
                         explorer.parentPath = entryPath;
                     }
-                    folderPath = "resources/" + resource.codename + "/";
+                    folderName = "resources/"
+                    folderPath = folderName + resource.codename + "/";
                     let movedIgnoreFolders = [];
                     for (let num of ignoreFolders) {
                         movedIgnoreFolders.push(num+1)
                     }
 
                     //create custom folder
-                    let resourceFolder = getOrCreateFolder(entryPath, "resources/", (name, path) => {
-                        return new e.ResourceFolder(name, path);
+                    let resourceFolder = getOrCreateFolder(entryPath, folderName, (name, path) => {
+                        return folderName === 'errors/' ? new e.ErrorsFolder(name, path) : new e.ResourceFolder(name, path);
                     },...movedIgnoreFolders);
                     resourceFolder.collapsed = true;
 
@@ -141,7 +143,7 @@ class FileUtils{
                     folder = getOrCreateFolder(entryPath, folderPath + locPath,null,...movedIgnoreFolders);
 
                 }else{
-
+                    LOG.error("Unable to register block: Resource with ID '" + entry.location.namespace + "' not found at '" + entry.location.location + "'");
                 }
             }
             if(folder == null){

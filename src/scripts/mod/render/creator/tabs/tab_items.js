@@ -1,5 +1,6 @@
 const ITab = require('./itab.js');
 const tabpane = require('../../../../gui/tabpane');
+const contextmenu = require('../../../../gui/context-menu');
 const explorer = require('../../../../gui/fileexplorer');
 const modelmenu = require('../modelmenu');
 
@@ -20,6 +21,12 @@ class TabItems extends ITab{
      * @type function
      */
     openCallback;
+
+    //
+    /**
+     * @type HTMLElement
+     */
+    toolbar;
 
     createTab() {
         this.tab = new tabpane.AnimatedImageTab('Items','items_gray.svg','item.svg','tab-editor','tab-items');
@@ -96,7 +103,13 @@ class TabItems extends ITab{
         this.controller.tabExplorers.item = this.tabExplorer;
         this.controller.explorers.item = this.explorer;
         this.controller.callbacks.item = {
-            open: this.openCallback
+            open: this.openCallback,
+            render: (explorer) => {
+                this.explorer = explorer;
+                explorer.onContextClick = (element, event) => {
+                    this.createContextMenu(element,event);
+                }
+            }
         }
     }
 
@@ -106,8 +119,9 @@ class TabItems extends ITab{
      * @return {HTMLDivElement}
      */
     createToolbar(searchCallback, newFolderCallback){
-        let toolbar = document.createElement('div');
-        toolbar.classList.add("explorer-toolbar");
+        this.toolbar = document.createElement('div');
+        this.toolbar.classList.add("explorer-toolbar");
+        this.toolbar.style.display = "none";
 
         let search = new forms.FormField('search-bar',"");
         search.placeholder = "Search";
@@ -115,63 +129,84 @@ class TabItems extends ITab{
             searchCallback(search.getValue());
         })
 
-        utils.addChild(toolbar, search.getElement());
+        utils.addChild(this.toolbar, search.getElement());
 
-        //buttons
-        let buttons = document.createElement('div');
-        buttons.classList.add('buttons');
 
-        function createButton(name, icon, action){
-            let button = new forms.IconButton(name, icon, action);
-            button.addTo(buttons);
-            return button;
-        }
-
-        createButton("New asset", "new_file.svg", () => {
-
+        let closeButton = new forms.IconButton("Close",'clear.svg',() => {
+            utils.fadeOut(this.toolbar,150);
         })
 
-        /**
-         * @type {?FormTooltip}
-         */
-        let newFolderTooltip = null;
-        createButton("New folder", "new_folder.svg", () => {
-            if(newFolderTooltip != null){
-                newFolderTooltip.hide();
-                newFolderTooltip = null;
-                return
+        closeButton.addTo(this.toolbar);
+
+        return this.toolbar;
+    }
+
+    createContextMenu(parent, e) {
+        if(parent != null){
+            if(parent instanceof explorer.File){
+                let contextMenu = new contextmenu.ContextMenu(parent.element);
+                contextMenu.open((items) => {
+                    items.push(new contextmenu.MenuButtonContextItem("New", () => {}, (items) => {
+                        items.push(new contextmenu.ImageButtonContextItem("Item", utils.getIcon('item.svg'),() => {
+
+                        }));
+                        items.push(new contextmenu.ImageButtonContextItem("Folder", utils.getIcon('folder.svg'), () => {
+                            contextMenu.close();
+                            this.controller.sendMessage('modal:create_folder', {explorer: 'block', index: this.explorer.allChilds.indexOf(parent)});
+                        },true));
+                    }));
+                    //
+                    //items.push(new contextMenu.DividerContextItem('test'));
+                    //
+                    items.push(new contextmenu.ButtonContextItem("Rename", () => {
+
+                    }));
+                    //
+                    items.push(new contextmenu.ButtonContextItem("Search...", () => {
+                        utils.fadeIn(this.toolbar,150);
+                    }));
+                    //
+                    items.push(new contextmenu.ButtonContextItem("Delete", () => {
+
+                    }));
+                },e);
+            }else if(parent instanceof explorer.Folder){
+                let contextMenu = new contextmenu.ContextMenu(parent.element);
+                if(parent instanceof explorer.ResourceFolder || parent in explorer.ErrorsFolder){
+                    contextMenu.open((items) => {
+                        items.push(new contextmenu.ButtonContextItem(parent.collapsed ? "Show contents" : "Collapse contents", () => {
+
+                        }));
+                    },e);
+                }else{
+                    contextMenu.open((items) => {
+                        items.push(new contextmenu.MenuButtonContextItem("New", () => {}, (items) => {
+                            items.push(new contextmenu.ImageButtonContextItem("Item", utils.getIcon('item.svg'),() => {
+
+                            }));
+                            items.push(new contextmenu.ImageButtonContextItem("Folder", utils.getIcon('folder.svg'), () => {
+                                contextMenu.close();
+                                this.controller.sendMessage('modal:create_folder', {explorer: 'block', index: this.explorer.allChilds.indexOf(parent)});
+                            },true));
+                        }));
+                        //
+                        //items.push(new contextMenu.DividerContextItem('test'));
+                        //
+                        items.push(new contextmenu.ButtonContextItem(parent.collapsed ? "Show contents" : "Collapse contents", () => {
+
+                        }));
+                        //
+                        items.push(new contextmenu.ButtonContextItem("Rename", () => {
+
+                        }));
+                        //
+                        items.push(new contextmenu.ButtonContextItem("Delete", () => {
+
+                        }));
+                    },e);
+                }
             }
-            newFolderTooltip = new tooltips.FormTooltip(buttons, "Add new folder", 'new_folder.svg', '', 'Create', 'Cancel', (form) => {
-                let name = form.serialize()['folder-name'];
-                newFolderCallback(name, () => {
-                    newFolderTooltip.hide();
-                });
-            }, 'media-folder-create', (element) => {
-                let form = new Form(element);
-                form.push();
-                let nameField = new forms.FormField('folder-name', "Name");
-                form.addEntries(nameField);
-                form.pop();
-                return form;
-            });
-            newFolderTooltip.placementY = "above";
-            newFolderTooltip.show();
-            newFolderTooltip.addHideEvent(() => {
-                newFolderTooltip = null;
-            })
-        })
-
-        createButton("Copy", "copy.svg", () => {
-
-        })
-
-        createButton("Delete", "delete.svg", () => {
-
-        })
-
-        utils.addChild(toolbar, buttons);
-
-        return toolbar;
+        }
     }
 }
 
@@ -201,16 +236,100 @@ class ItemTab extends tabpane.ElementTab{
         content.classList.add('element-tab-content');
         // ? LEFT
         let contentLeft = document.createElement('div');
-        contentLeft.classList.add("element-content-left");
+        contentLeft.classList.add("element-content-left", "element-content-tabs");
+
+        // * PANE CONTENT
+        let paneContent = document.createElement('div');
+        paneContent.classList.add("pane-content");
+        let paneHolder = document.createElement('div');
+        paneHolder.classList.add("pane-holder");
+        utils.addChild(contentLeft, paneContent, paneHolder);
+
+        // * PANE
+        this.pane = new tabpane.PanelTabPane();
+        this.pane.type = "LEFT";
+        this.pane.push(paneHolder, paneContent);
+
+        let tabData = new tabpane.AnimatedImageTab("Data",'data_gray.svg','data.svg',"pane-inside");
+        this.pane.addTab(tabData);
+        this.createDataTab(tabData.element);
+
+        let tabLinks = new tabpane.AnimatedImageTab("Linked",'link_gray.svg','link.svg',"pane-inside");
+        this.pane.addTab(tabLinks);
+        this.createLinkTab(tabLinks.element);
+
+        let tabCode = new tabpane.AnimatedImageTab("Code",'code_gray.svg','code.svg',"pane-inside");
+        this.pane.addTab(tabCode);
+        this.createCodeTab(tabCode.element);
+
+        this.pane.pop();
+
+
+        //-------------------------------------------------------------------
+        // ? RIGHT
+        let contentRight = document.createElement('div');
+        contentRight.classList.add("element-content-right");
+        let header = document.createElement('div');
+        header.classList.add("right-header");
+        let headerText = document.createElement('h2');
+        headerText.innerHTML = "Block View";
+        utils.addChild(header, headerText);
+        let modelContent = document.createElement('div');
+        modelContent.classList.add("model-content");
 
         {
-            let section = document.createElement('div');
-            section.classList.add("content-section");
-            // * HEADER
-            let header = document.createElement('h2');
-            header.innerHTML = "Properties";
-            utils.addChild(section, header);
 
+
+            let count = 0;
+            let textures = this.item.getTextures();
+            if(textures.length > 0){
+                for (let texture of textures) {
+                    let div = document.createElement('div');
+                    div.classList.add("texture-view-holder");
+                    let img = document.createElement('img');
+                    img.classList.add('texture-view-img');
+                    img.src = texture.path;
+                    let tooltip = new tooltips.TextureTooltip(div,texture);
+                    tooltip.applyHover(div);
+                    utils.addChild(div,img);
+                    utils.addChild(modelContent, div);
+                    count++;
+                }
+            }else{
+                //todo get parent texture if item has none
+                //or get block texture
+            }
+
+            if(count > 1){
+                modelContent.classList.add("lot");
+            }
+        }
+
+        utils.addChild(contentRight, header, modelContent);
+
+        //
+        utils.addChild(content, contentLeft, contentRight);
+    }
+
+    // # -----------------------
+    /**
+     * @param element {HTMLElement}
+     */
+    createDataTab(element){
+        modutils.createRegistrySection('Properties', section => {
+            let holder = document.createElement('div');
+            holder.classList.add('property-section');
+            modutils.createPropertySection('ID',(content) => {
+                content.innerText = this.item.location.location;
+                content.style.cursor = 'pointer';
+                utils.onClick(content, () => {
+                    utils.copyToClipboard(this.item.location.location, content, 'under');
+                });
+            }, holder);
+            utils.addChild(section, holder)
+        }, element);
+
+        modutils.createRegistrySection('Modify', section => {
             let form = new Form(section);
             form.push();
             let name = new forms.FormField('name', "Codename");
@@ -219,9 +338,9 @@ class ItemTab extends tabpane.ElementTab{
             displayName.bottomHTML = "More languages are available in Languages tab.";
             form.addEntries(name, displayName);
             form.pop()
+        }, element);
 
-            utils.addChild(contentLeft, section);
-        }
+        //
         {
             let section = document.createElement('div');
             section.classList.add("content-section");
@@ -256,8 +375,10 @@ class ItemTab extends tabpane.ElementTab{
             }
             utils.addChild(section, itemParent);
 
-            utils.addChild(contentLeft, section);
+            utils.addChild(element, section);
         }
+
+        //
         {
             let section = document.createElement('div');
             section.classList.add("content-section");
@@ -269,28 +390,59 @@ class ItemTab extends tabpane.ElementTab{
             let diagram = new modelmenu.ParentTextureDiagram(section, this.item);
             diagram.construct();
 
-            utils.addChild(contentLeft, section);
+            utils.addChild(element, section);
         }
-
-        // ? RIGHT
-        let contentRight = document.createElement('div');
-        contentRight.classList.add("element-content-right");
-        let header = document.createElement('div');
-        header.classList.add("right-header");
-        let headerText = document.createElement('h2');
-        headerText.innerHTML = "Item View";
-        utils.addChild(header, headerText);
-        let modelContent = document.createElement('div');
-        modelContent.classList.add("model-content");
-
-        //let ModelRender = require('minerender/src/model');
-        //let render = new ModelRender({}, modelContent);
-        //render.render(['block/stone']);
-
-        utils.addChild(contentRight, header, modelContent);
-        //
-        utils.addChild(content, contentLeft, contentRight);
     }
+
+    /**
+     * @param element {HTMLElement}
+     */
+    createLinkTab(element){
+        modutils.createRegistrySection('Usages', section => {
+            //todo blocks that use current block OR if block is registered as single
+        }, element);
+    }
+
+    /**
+     * @param element {HTMLElement}
+     */
+    createCodeTab(element) {
+        element.classList.add("json-panel");
+        const jsonEditor = require('jsoneditor');
+        const editor = new jsonEditor(element, {
+            mode: 'form',
+            modes: ['code', 'form', 'tree'],
+            onChange: () => {
+                if(editor.getText() !== this.item.json) {
+                    this.markDirty('json');
+                }
+            },
+            onModeChange: (o, n) => {
+                if(editor != null) {
+                    editor.expandAll();
+                }
+            }
+        });
+        editor.setText(this.item.json);
+        editor.expandAll();
+
+        this.addSaveEvent(() => {
+            this.item.jsonRemote = editor.getText();
+            this.controller.sendMessage('save:json',{
+                type: "block",
+                location: this.item.location.location,
+                file: this.item.path,
+                content: this.item.jsonRemote
+            })
+        })
+
+        this.addResetEvent(() => {
+            editor.setText(this.item.json);
+            editor.expandAll();
+        })
+    }
+
+    // # -----------------------
 
     onOpen() {
         super.onOpen();

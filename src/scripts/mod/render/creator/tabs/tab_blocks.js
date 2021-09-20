@@ -328,7 +328,7 @@ class BlockTab extends tabpane.ElementTab{
                 content.innerText = this.block.location.location;
                 content.style.cursor = 'pointer';
                 utils.onClick(content, () => {
-                    utils.copyToClipboard(this.blockModel.location.location, content, 'under');
+                    utils.copyToClipboard(this.block.location.location, content, 'under');
                 });
             }, holder);
             utils.addChild(section, holder)

@@ -1,5 +1,6 @@
 const ITab = require('./itab.js');
 const tabpane = require('../../../../gui/tabpane');
+const contextmenu = require('../../../../gui/context-menu');
 const explorer = require('../../../../gui/fileexplorer');
 const modelmenu = require('../modelmenu');
 
@@ -20,6 +21,12 @@ class TabBlockModels extends ITab{
      * @type function
      */
     openCallback;
+
+    //
+    /**
+     * @type HTMLElement
+     */
+    toolbar;
 
     createTab() {
         this.tab = new tabpane.AnimatedImageTab('Models','models_gray.svg','model.svg','tab-editor','tab-block-models');
@@ -96,7 +103,13 @@ class TabBlockModels extends ITab{
         this.controller.tabExplorers.blockModel = this.tabExplorer;
         this.controller.explorers.blockModel = this.explorer;
         this.controller.callbacks.blockModel = {
-            open: this.openCallback
+            open: this.openCallback,
+            render: (explorer) => {
+                this.explorer = explorer;
+                explorer.onContextClick = (element, event) => {
+                    this.createContextMenu(element,event);
+                }
+            }
         }
     }
 
@@ -106,8 +119,9 @@ class TabBlockModels extends ITab{
      * @return {HTMLDivElement}
      */
     createToolbar(searchCallback, newFolderCallback){
-        let toolbar = document.createElement('div');
-        toolbar.classList.add("explorer-toolbar");
+        this.toolbar = document.createElement('div');
+        this.toolbar.classList.add("explorer-toolbar");
+        this.toolbar.style.display = "none";
 
         let search = new forms.FormField('search-bar',"");
         search.placeholder = "Search";
@@ -115,63 +129,84 @@ class TabBlockModels extends ITab{
             searchCallback(search.getValue());
         })
 
-        utils.addChild(toolbar, search.getElement());
+        utils.addChild(this.toolbar, search.getElement());
 
-        //buttons
-        let buttons = document.createElement('div');
-        buttons.classList.add('buttons');
 
-        function createButton(name, icon, action){
-            let button = new forms.IconButton(name, icon, action);
-            button.addTo(buttons);
-            return button;
-        }
-
-        createButton("New asset", "new_file.svg", () => {
-
+        let closeButton = new forms.IconButton("Close",'clear.svg',() => {
+            utils.fadeOut(this.toolbar,150);
         })
 
-        /**
-         * @type {?FormTooltip}
-         */
-        let newFolderTooltip = null;
-        createButton("New folder", "new_folder.svg", () => {
-            if(newFolderTooltip != null){
-                newFolderTooltip.hide();
-                newFolderTooltip = null;
-                return
+        closeButton.addTo(this.toolbar);
+
+        return this.toolbar;
+    }
+
+    createContextMenu(parent, e) {
+        if(parent != null){
+            if(parent instanceof explorer.File){
+                let contextMenu = new contextmenu.ContextMenu(parent.element);
+                contextMenu.open((items) => {
+                    items.push(new contextmenu.MenuButtonContextItem("New", () => {}, (items) => {
+                        items.push(new contextmenu.ImageButtonContextItem("Model", utils.getIcon('model.svg'),() => {
+
+                        }));
+                        items.push(new contextmenu.ImageButtonContextItem("Folder", utils.getIcon('folder.svg'), () => {
+                            contextMenu.close();
+                            this.controller.sendMessage('modal:create_folder', {explorer: 'block', index: this.explorer.allChilds.indexOf(parent)});
+                        },true));
+                    }));
+                    //
+                    //items.push(new contextMenu.DividerContextItem('test'));
+                    //
+                    items.push(new contextmenu.ButtonContextItem("Rename", () => {
+
+                    }));
+                    //
+                    items.push(new contextmenu.ButtonContextItem("Search...", () => {
+                        utils.fadeIn(this.toolbar,150);
+                    }));
+                    //
+                    items.push(new contextmenu.ButtonContextItem("Delete", () => {
+
+                    }));
+                },e);
+            }else if(parent instanceof explorer.Folder){
+                let contextMenu = new contextmenu.ContextMenu(parent.element);
+                if(parent instanceof explorer.ResourceFolder || parent in explorer.ErrorsFolder){
+                    contextMenu.open((items) => {
+                        items.push(new contextmenu.ButtonContextItem(parent.collapsed ? "Show contents" : "Collapse contents", () => {
+
+                        }));
+                    },e);
+                }else{
+                    contextMenu.open((items) => {
+                        items.push(new contextmenu.MenuButtonContextItem("New", () => {}, (items) => {
+                            items.push(new contextmenu.ImageButtonContextItem("Model", utils.getIcon('model.svg'),() => {
+
+                            }));
+                            items.push(new contextmenu.ImageButtonContextItem("Folder", utils.getIcon('folder.svg'), () => {
+                                contextMenu.close();
+                                this.controller.sendMessage('modal:create_folder', {explorer: 'block', index: this.explorer.allChilds.indexOf(parent)});
+                            },true));
+                        }));
+                        //
+                        //items.push(new contextMenu.DividerContextItem('test'));
+                        //
+                        items.push(new contextmenu.ButtonContextItem(parent.collapsed ? "Show contents" : "Collapse contents", () => {
+
+                        }));
+                        //
+                        items.push(new contextmenu.ButtonContextItem("Rename", () => {
+
+                        }));
+                        //
+                        items.push(new contextmenu.ButtonContextItem("Delete", () => {
+
+                        }));
+                    },e);
+                }
             }
-            newFolderTooltip = new tooltips.FormTooltip(buttons, "Add new folder", 'new_folder.svg', '', 'Create', 'Cancel', (form) => {
-                let name = form.serialize()['folder-name'];
-                newFolderCallback(name, () => {
-                    newFolderTooltip.hide();
-                });
-            }, 'media-folder-create', (element) => {
-                let form = new Form(element);
-                form.push();
-                let nameField = new forms.FormField('folder-name', "Name");
-                form.addEntries(nameField);
-                form.pop();
-                return form;
-            });
-            newFolderTooltip.placementY = "above";
-            newFolderTooltip.show();
-            newFolderTooltip.addHideEvent(() => {
-                newFolderTooltip = null;
-            })
-        })
-
-        createButton("Copy", "copy.svg", () => {
-
-        })
-
-        createButton("Delete", "delete.svg", () => {
-
-        })
-
-        utils.addChild(toolbar, buttons);
-
-        return toolbar;
+        }
     }
 }
 
@@ -201,77 +236,34 @@ class BlockModelTab extends tabpane.ElementTab{
         content.classList.add('element-tab-content');
         // ? LEFT
         let contentLeft = document.createElement('div');
-        contentLeft.classList.add("element-content-left");
+        contentLeft.classList.add("element-content-left", "element-content-tabs");
 
-        {
-            modutils.createRegistrySection('Properties', section => {
-                let holder = document.createElement('div');
-                holder.classList.add('property-section');
-                modutils.createPropertySection('ID',(content) => {
-                    content.innerText = this.blockModel.location.location;
-                    content.style.cursor = 'pointer';
-                    utils.onClick(content, () => {
-                        utils.copyToClipboard(this.blockModel.location.location, content, 'under');
-                    })
-                }, holder);
-                utils.addChild(section, holder)
-            }, contentLeft);
-        }
-        {
-            modutils.createRegistrySection('Modify', section => {
-                let form = new Form(section);
-                form.push();
-                let name = new forms.FormField('name', "Name");
-                name.setValue(this.blockModelFile.getName());
-                form.addEntry(name);
-                form.pop()
-            }, contentLeft);
-        }
-        {
-            modutils.createRegistrySection('Textures', section => {
-                let texturesList = document.createElement('div');
-                texturesList.classList.add("info-textures", 'texture-list');
+        // * PANE CONTENT
+        let paneContent = document.createElement('div');
+        paneContent.classList.add("pane-content");
+        let paneHolder = document.createElement('div');
+        paneHolder.classList.add("pane-holder");
+        utils.addChild(contentLeft, paneContent, paneHolder);
 
-                // ? TEXTURES
-                /**
-                 * @type {{texture: Texture, count: number}[]}
-                 */
-                let textures = [];
-                for (let texture of this.blockModel.textures) {
-                    let regTexture = mod.modRegistry.getTexture(texture.location);
-                    let contains = false;
-                    for (let tex of textures) {
-                        if (tex.texture === regTexture) {
-                            tex.count++;
-                            contains = true;
-                            break;
-                        }
-                    }
+        // * PANE
+        this.pane = new tabpane.PanelTabPane();
+        this.pane.type = "LEFT";
+        this.pane.push(paneHolder, paneContent);
 
-                    if (!contains) {
-                        textures.push({
-                            texture: regTexture,
-                            count: 1
-                        })
-                    }
-                }
+        let tabData = new tabpane.AnimatedImageTab("Data",'data_gray.svg','data.svg',"pane-inside");
+        this.pane.addTab(tabData);
+        this.createDataTab(tabData.element);
 
-                for (let texture of textures) {
-                    let visual = new modelmenu.TextureVisual(texture.texture, texture.count);
-                    let el = visual.construct();
-                    utils.addChild(texturesList, el);
-                }
-                utils.addChild(section, texturesList);
-            }, contentLeft);
-        }
-        {
-            modutils.createRegistrySection('Usages', section => {
-                let modelUsageList = new modelmenu.ModelUsageList(section, this.blockModel);
-                setTimeout(() => {
-                    modelUsageList.construct();
-                }, 0)
-            }, contentLeft);
-        }
+        let tabLinks = new tabpane.AnimatedImageTab("Linked",'link_gray.svg','link.svg',"pane-inside");
+        this.pane.addTab(tabLinks);
+        this.createLinkTab(tabLinks.element);
+
+        let tabCode = new tabpane.AnimatedImageTab("Code",'code_gray.svg','code.svg',"pane-inside");
+        this.pane.addTab(tabCode);
+        this.createCodeTab(tabCode.element);
+
+        this.pane.pop();
+
 
         // ? RIGHT
         let contentRight = document.createElement('div');
@@ -284,11 +276,150 @@ class BlockModelTab extends tabpane.ElementTab{
         let modelContent = document.createElement('div');
         modelContent.classList.add("model-content");
 
+        {
+            //
+            let count = 0;
+            for (let texture of this.blockModel.getTextures()) {
+                if(texture.exists()) {
+                    let div = document.createElement('div');
+                    div.classList.add("texture-view-holder");
+                    let img = document.createElement('img');
+                    img.classList.add('texture-view-img');
+                    img.src = texture.path;
+                    let tooltip = new tooltips.TextureTooltip(div,texture);
+                    tooltip.applyHover(div);
+                    utils.addChild(div,img);
+                    utils.addChild(modelContent, div);
+                    count++;
+                }
+            }
+            if(count > 1){
+                modelContent.classList.add("lot");
+            }
+        }
+
         utils.addChild(contentRight, header, modelContent);
 
         //
         utils.addChild(content, contentLeft, contentRight);
     }
+
+    // # -----------------------
+    /**
+     * @param element {HTMLElement}
+     */
+    createDataTab(element){
+        modutils.createRegistrySection('Properties', section => {
+            let holder = document.createElement('div');
+            holder.classList.add('property-section');
+            modutils.createPropertySection('ID',(content) => {
+                content.innerText = this.blockModel.location.location;
+                content.style.cursor = 'pointer';
+                utils.onClick(content, () => {
+                    utils.copyToClipboard(this.blockModel.location.location, content, 'under');
+                })
+            }, holder);
+            utils.addChild(section, holder)
+        }, element);
+
+        modutils.createRegistrySection('Modify', section => {
+            let form = new Form(section);
+            form.push();
+            let name = new forms.FormField('name', "Name");
+            name.setValue(this.blockModelFile.getName());
+            form.addEntry(name);
+            form.pop()
+        }, element);
+
+        modutils.createRegistrySection('Textures', section => {
+            let texturesList = document.createElement('div');
+            texturesList.classList.add("info-textures", 'texture-list');
+
+            // ? TEXTURES
+            /**
+             * @type {{texture: Texture, count: number}[]}
+             */
+            let textures = [];
+            for (let texture of this.blockModel.textures) {
+                let regTexture = mod.modRegistry.getTexture(texture.location);
+                let contains = false;
+                for (let tex of textures) {
+                    if (tex.texture === regTexture) {
+                        tex.count++;
+                        contains = true;
+                        break;
+                    }
+                }
+
+                if (!contains) {
+                    textures.push({
+                        texture: regTexture,
+                        count: 1
+                    })
+                }
+            }
+
+            for (let texture of textures) {
+                let visual = new modelmenu.TextureVisual(texture.texture, texture.count);
+                let el = visual.construct();
+                utils.addChild(texturesList, el);
+            }
+            utils.addChild(section, texturesList);
+        }, element);
+    }
+
+    /**
+     * @param element {HTMLElement}
+     */
+    createLinkTab(element){
+        modutils.createRegistrySection('Usages', section => {
+            let modelUsageList = new modelmenu.ModelUsageList(section, this.blockModel);
+            setTimeout(() => {
+                modelUsageList.construct();
+            }, 0)
+        }, element);
+    }
+
+    /**
+     * @param element {HTMLElement}
+     */
+    createCodeTab(element) {
+        element.classList.add("json-panel");
+        const jsonEditor = require('jsoneditor');
+        const editor = new jsonEditor(element, {
+            mode: 'form',
+            modes: ['code', 'form', 'tree'],
+            onChange: () => {
+                if(editor.getText() !== this.blockModel.json) {
+                    this.markDirty('json');
+                }
+            },
+            onModeChange: (o, n) => {
+                if(editor != null) {
+                    editor.expandAll();
+                }
+            }
+        });
+        editor.setText(this.blockModel.json);
+        editor.expandAll();
+
+        this.addSaveEvent(() => {
+            this.blockModel.jsonRemote = editor.getText();
+            this.controller.sendMessage('save:json',{
+                type: "blockModel",
+                location: this.blockModel.location.location,
+                file: this.blockModel.path,
+                content: this.blockModel.jsonRemote
+            })
+        })
+
+        this.addResetEvent(() => {
+            editor.setText(this.blockModel.json);
+            editor.expandAll();
+        })
+    }
+
+    // # -----------------------
 
     onOpen() {
         super.onOpen();

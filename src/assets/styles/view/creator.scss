@@ -282,7 +282,22 @@ body {
                                     margin-left: auto;
                                     padding: 0 8px;
                                 }
+
+                                &.property-error{
+                                    .property-title {
+                                        font-weight: 600;
+                                        color: var(--color-status-fail-bright);
+                                    }
+
+                                    .property-content {
+                                        font-weight: 400;
+                                        color: var(--color-status-fail-bright-contrast);
+                                        margin-left: auto;
+                                        padding: 0 8px;
+                                    }
+                                }
                             }
+
                         }
                     }
 

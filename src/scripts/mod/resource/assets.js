@@ -237,6 +237,9 @@ class ModAssetLoader {
                 if(!path.includes('.png')){
                     continue
                 }
+                if(path.includes('.mcmeta')){
+                    continue
+                }
 
                 path = path.replace('.png','')
 
@@ -245,24 +248,20 @@ class ModAssetLoader {
                     path: path
                 });
 
-                if(!registry.hasTexture(location)){
-                    let texture = registry.getOrCreateTexture(new Texture(null, location.location,resourcePath));
-                }
+                let texture = registry.getOrCreateTexture(new Texture(null, location.location,resourcePath));
+                texture.resourcePath = resourcePath;
             }
         }
-
         loadTexturesIn(this.mod.codename, this.mod.assetsPath + "/textures", this.registry, this.resourcePath);
         for (let key in this.mod.modResources.resources) {
             let resource = this.mod.modResources.resources[key];
             loadTexturesIn(resource.codename, resource.assetsPath + "/textures", this.registry, resource.path);
         }
 
+
         let texturesCount = this.registry.countTextures()
 
-        LOG.success("Loaded " + texturesCount + " textures");
-
         this.textures = fsutils.getResourceList('textures','texture',mod.modRegistry.textures);
-
         this.mod.modLoadingProgress.update('textures',texturesCount);
     }
 
@@ -541,10 +540,9 @@ class ModRegistry{
      * @return boolean
      */
     registerTexture(texture){
-        if(this.hasBlockModel(texture.location.location)){
+        if(this.hasTexture(texture.location.location)){
             return false;
         }
-
         this.textures.set(texture.location.location, texture)
         this.markDirty();
         return true;

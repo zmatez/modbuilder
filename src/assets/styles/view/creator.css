@@ -11,6 +11,7 @@
   margin: 5px 0;
   border: 2px solid transparent;
   transition: border-color 0.2s ease-in-out;
+  margin-left: 15px;
 }
 .model-menu .model-visual .model-name, .texture-usage-menu .model-visual .model-name, .model-usage-menu .model-visual .model-name, .item-parent-section .model-visual .model-name {
   font-family: Raleway, sans-serif;
@@ -390,6 +391,16 @@ body {
 .menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section .property-section .property-entry .property-content {
   font-weight: 400;
   color: var(--color-foreground-p50);
+  margin-left: auto;
+  padding: 0 8px;
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section .property-section .property-entry.property-error .property-title {
+  font-weight: 600;
+  color: var(--color-status-fail-bright);
+}
+.menu-content .tab-editor .right-box .editor-content .element-tab-content .content-section .property-section .property-entry.property-error .property-content {
+  font-weight: 400;
+  color: var(--color-status-fail-bright-contrast);
   margin-left: auto;
   padding: 0 8px;
 }

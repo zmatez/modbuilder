@@ -1,5 +1,6 @@
 const ITab = require('./itab.js');
 const tabpane = require('../../../../gui/tabpane');
+const contextmenu = require('../../../../gui/context-menu');
 const explorer = require('../../../../gui/fileexplorer');
 const modelmenu = require('../modelmenu');
 
@@ -20,6 +21,12 @@ class TabTextures extends ITab{
      * @type function
      */
     openCallback;
+
+    //
+    /**
+     * @type HTMLElement
+     */
+    toolbar;
 
     createTab() {
         this.tab = new tabpane.AnimatedImageTab('Textures','textures_gray.svg','texture.svg','tab-editor','tab-textures');
@@ -96,7 +103,13 @@ class TabTextures extends ITab{
         this.controller.tabExplorers.texture = this.tabExplorer;
         this.controller.explorers.texture = this.explorer;
         this.controller.callbacks.texture = {
-            open: this.openCallback
+            open: this.openCallback,
+            render: (explorer) => {
+                this.explorer = explorer;
+                explorer.onContextClick = (element, event) => {
+                    this.createContextMenu(element,event);
+                }
+            }
         }
     }
 
@@ -106,8 +119,9 @@ class TabTextures extends ITab{
      * @return {HTMLDivElement}
      */
     createToolbar(searchCallback, newFolderCallback){
-        let toolbar = document.createElement('div');
-        toolbar.classList.add("explorer-toolbar");
+        this.toolbar = document.createElement('div');
+        this.toolbar.classList.add("explorer-toolbar");
+        this.toolbar.style.display = "none";
 
         let search = new forms.FormField('search-bar',"");
         search.placeholder = "Search";
@@ -115,63 +129,84 @@ class TabTextures extends ITab{
             searchCallback(search.getValue());
         })
 
-        utils.addChild(toolbar, search.getElement());
+        utils.addChild(this.toolbar, search.getElement());
 
-        //buttons
-        let buttons = document.createElement('div');
-        buttons.classList.add('buttons');
 
-        function createButton(name, icon, action){
-            let button = new forms.IconButton(name, icon, action);
-            button.addTo(buttons);
-            return button;
-        }
-
-        createButton("New asset", "new_file.svg", () => {
-
+        let closeButton = new forms.IconButton("Close",'clear.svg',() => {
+            utils.fadeOut(this.toolbar,150);
         })
 
-        /**
-         * @type {?FormTooltip}
-         */
-        let newFolderTooltip = null;
-        createButton("New folder", "new_folder.svg", () => {
-            if(newFolderTooltip != null){
-                newFolderTooltip.hide();
-                newFolderTooltip = null;
-                return
+        closeButton.addTo(this.toolbar);
+
+        return this.toolbar;
+    }
+
+    createContextMenu(parent, e) {
+        if(parent != null){
+            if(parent instanceof explorer.File){
+                let contextMenu = new contextmenu.ContextMenu(parent.element);
+                contextMenu.open((items) => {
+                    items.push(new contextmenu.MenuButtonContextItem("New", () => {}, (items) => {
+                        items.push(new contextmenu.ImageButtonContextItem("Item", utils.getIcon('item.svg'),() => {
+
+                        }));
+                        items.push(new contextmenu.ImageButtonContextItem("Folder", utils.getIcon('folder.svg'), () => {
+                            contextMenu.close();
+                            this.controller.sendMessage('modal:create_folder', {explorer: 'block', index: this.explorer.allChilds.indexOf(parent)});
+                        },true));
+                    }));
+                    //
+                    //items.push(new contextMenu.DividerContextItem('test'));
+                    //
+                    items.push(new contextmenu.ButtonContextItem("Rename", () => {
+
+                    }));
+                    //
+                    items.push(new contextmenu.ButtonContextItem("Search...", () => {
+                        utils.fadeIn(this.toolbar,150);
+                    }));
+                    //
+                    items.push(new contextmenu.ButtonContextItem("Delete", () => {
+
+                    }));
+                },e);
+            }else if(parent instanceof explorer.Folder){
+                let contextMenu = new contextmenu.ContextMenu(parent.element);
+                if(parent instanceof explorer.ResourceFolder || parent in explorer.ErrorsFolder){
+                    contextMenu.open((items) => {
+                        items.push(new contextmenu.ButtonContextItem(parent.collapsed ? "Show contents" : "Collapse contents", () => {
+
+                        }));
+                    },e);
+                }else{
+                    contextMenu.open((items) => {
+                        items.push(new contextmenu.MenuButtonContextItem("New", () => {}, (items) => {
+                            items.push(new contextmenu.ImageButtonContextItem("Item", utils.getIcon('item.svg'),() => {
+
+                            }));
+                            items.push(new contextmenu.ImageButtonContextItem("Folder", utils.getIcon('folder.svg'), () => {
+                                contextMenu.close();
+                                this.controller.sendMessage('modal:create_folder', {explorer: 'block', index: this.explorer.allChilds.indexOf(parent)});
+                            },true));
+                        }));
+                        //
+                        //items.push(new contextMenu.DividerContextItem('test'));
+                        //
+                        items.push(new contextmenu.ButtonContextItem(parent.collapsed ? "Show contents" : "Collapse contents", () => {
+
+                        }));
+                        //
+                        items.push(new contextmenu.ButtonContextItem("Rename", () => {
+
+                        }));
+                        //
+                        items.push(new contextmenu.ButtonContextItem("Delete", () => {
+
+                        }));
+                    },e);
+                }
             }
-            newFolderTooltip = new tooltips.FormTooltip(buttons, "Add new folder", 'new_folder.svg', '', 'Create', 'Cancel', (form) => {
-                let name = form.serialize()['folder-name'];
-                newFolderCallback(name, () => {
-                    newFolderTooltip.hide();
-                });
-            }, 'media-folder-create', (element) => {
-                let form = new Form(element);
-                form.push();
-                let nameField = new forms.FormField('folder-name', "Name");
-                form.addEntries(nameField);
-                form.pop();
-                return form;
-            });
-            newFolderTooltip.placementY = "above";
-            newFolderTooltip.show();
-            newFolderTooltip.addHideEvent(() => {
-                newFolderTooltip = null;
-            })
-        })
-
-        createButton("Copy", "copy.svg", () => {
-
-        })
-
-        createButton("Delete", "delete.svg", () => {
-
-        })
-
-        utils.addChild(toolbar, buttons);
-
-        return toolbar;
+        }
     }
 }
 
@@ -201,52 +236,33 @@ class TextureTab extends tabpane.ElementTab{
         content.classList.add('element-tab-content');
         // ? LEFT
         let contentLeft = document.createElement('div');
-        contentLeft.classList.add("element-content-left");
+        contentLeft.classList.add("element-content-left", "element-content-tabs");
 
-        {
-            let section = document.createElement('div');
-            section.classList.add("content-section");
-            // * HEADER
-            let header = document.createElement('h2');
-            header.innerHTML = "Properties";
-            utils.addChild(section, header);
+        // * PANE CONTENT
+        let paneContent = document.createElement('div');
+        paneContent.classList.add("pane-content");
+        let paneHolder = document.createElement('div');
+        paneHolder.classList.add("pane-holder");
+        utils.addChild(contentLeft, paneContent, paneHolder);
 
-            let form = new Form(section);
-            form.push();
-            let name = new forms.FormField('name', "Name");
-            name.setValue(this.textureFile.getName());
-            form.addEntry(name);
-            form.pop()
+        // * PANE
+        this.pane = new tabpane.PanelTabPane();
+        this.pane.type = "LEFT";
+        this.pane.push(paneHolder, paneContent);
 
-            utils.addChild(contentLeft, section);
-        }
-        {
-            let section = document.createElement('div');
-            section.classList.add("content-section");
-            // * HEADER
-            let header = document.createElement('h2');
-            header.innerHTML = "Usages";
-            utils.addChild(section, header);
+        let tabData = new tabpane.AnimatedImageTab("Data",'data_gray.svg','data.svg',"pane-inside");
+        this.pane.addTab(tabData);
+        this.createDataTab(tabData.element);
 
-            let textureUsageList = new modelmenu.TextureUsageList(section, this.texture);
-            setTimeout(() => {
-                textureUsageList.construct();
-            }, 0)
+        let tabLinks = new tabpane.AnimatedImageTab("Linked",'link_gray.svg','link.svg',"pane-inside");
+        this.pane.addTab(tabLinks);
+        this.createLinkTab(tabLinks.element);
 
-            utils.addChild(contentLeft, section);
-        }
-        {
-            let section = document.createElement('div');
-            section.classList.add("content-section");
-            // * HEADER
-            let header = document.createElement('h2');
-            header.innerHTML = "Animation";
-            utils.addChild(section, header);
+        let tabEditor = new tabpane.AnimatedImageTab("Code",'code_gray.svg','code.svg',"pane-inside");
+        this.pane.addTab(tabEditor);
+        this.createEditorTab(tabEditor.element);
 
-
-
-            utils.addChild(contentLeft, section);
-        }
+        this.pane.pop();
 
         // ? RIGHT
         let contentRight = document.createElement('div');
@@ -283,6 +299,73 @@ class TextureTab extends tabpane.ElementTab{
         //
         utils.addChild(content, contentLeft, contentRight);
     }
+
+    // # -----------------------
+    /**
+     * @param element {HTMLElement}
+     */
+    createDataTab(element){
+        modutils.createRegistrySection('Properties', section => {
+            let holder = document.createElement('div');
+            holder.classList.add('property-section');
+            modutils.createPropertySection('ID',(content) => {
+                content.innerText = this.texture.location.location;
+                content.style.cursor = 'pointer';
+                utils.onClick(content, () => {
+                    utils.copyToClipboard(this.texture.location.location, content, 'under');
+                });
+            }, holder);
+            if(this.texture.exists()) {
+                modutils.createPropertySection('Resolution', (content) => {
+                    let res = "Calculating...";
+                    this.texture.size((w, h) => {
+                        res = w + "x" + h;
+                        content.innerText = res;
+                    })
+                    content.innerText = res;
+                    content.style.cursor = 'pointer';
+                    utils.onClick(content, () => {
+                        utils.copyToClipboard(res, content, 'under');
+                    });
+                }, holder);
+            }else{
+                modutils.createPropertySection('Error',(content) => {
+                    content.innerText = "No texture found, but some dependencies require it.";
+                }, holder,'property-error');
+            }
+            utils.addChild(section, holder)
+        }, element);
+
+        modutils.createRegistrySection('Modify', section => {
+            let form = new Form(section);
+            form.push();
+            let name = new forms.FormField('name', "Name");
+            name.setValue(this.textureFile.getName());
+            form.addEntry(name);
+            form.pop()
+        }, element);
+    }
+
+    /**
+     * @param element {HTMLElement}
+     */
+    createLinkTab(element){
+        modutils.createRegistrySection('Usages', section => {
+            let textureUsageList = new modelmenu.TextureUsageList(section, this.texture);
+            setTimeout(() => {
+                textureUsageList.construct();
+            }, 0)
+        }, element);
+    }
+
+    /**
+     * @param element {HTMLElement}
+     */
+    createEditorTab(element) {
+
+    }
+
+    // # -----------------------
 
     onOpen() {
         super.onOpen();
