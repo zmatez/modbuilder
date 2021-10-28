@@ -1,9 +1,8 @@
-<div style="display: flex; flex-flow: column; justify-content: center; align-items: center">
+<center>
     <img src="src/assets/icons/logo.png" alt="logo">
     <h1>ModBuilder</h1>
-    <hr>
-    <p>Make Minecraft mods easily</p>
-    <div style="display: flex; flex-flow: row; gap: 5px">
+    <h5>Make Minecraft mods easily</h5>
+    <div>
         <img alt="GitHub language count" src="https://img.shields.io/github/languages/count/zmatez/modbuilder?color=%23FF8967">
         <img alt="Lines of code" src="https://img.shields.io/tokei/lines/github/zmatez/modbuilder?color=%23512446">
         <img alt="GitHub issues" src="https://img.shields.io/github/issues/zmatez/modbuilder?color=%23FF8967">
@@ -12,7 +11,7 @@
         <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/zmatez/modbuilder?color=512446">
         <img alt="GitHub package.json dependency version (dev dep on branch)" src="https://img.shields.io/github/package-json/dependency-version/zmatez/modbuilder/dev/electron?color=FF8967">
     </div>
-</div>
+</center>
 
 ---
 ## What is this for?
@@ -84,7 +83,7 @@ I've listed few uncompleted things that need to be done before full usability of
     - Changing blocks and item view in tabs from just images to a fancy 3D model generated from JSON (like MC does)
     - Forge/Fabric choosing
     
-###Contribution tips
+### Contribution tips
 - Find cool icons on [FlatIcon](https://flaticon.com)
 - mc_* files are for client, while rc_* files are for renderer processes (Electron shit...)
 
@@ -94,9 +93,5 @@ Project uses **MIT license**.
 
 ---
 ## Donate
-Buy me a coffee! I'm not even adult so any money sent makes me smile :)
-<form action="https://www.paypal.com/donate" method="post" target="_top" style="cursor: pointer">
-<input type="hidden" name="hosted_button_id" value="XX8SZ8BY9B4J6" />
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
-<img alt="" border="0" src="https://www.paypal.com/en_PL/i/scr/pixel.gif" width="1" height="1" />
-</form>
+Buy me a coffee! I'm not even adult so any money sent makes me smile :)  
+[Donate by PayPal](https://www.paypal.com/donate?hosted_button_id=XX8SZ8BY9B4J6)
