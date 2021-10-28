@@ -1,8 +1,8 @@
 <p align="center">
-    <img src="src/assets/icons/logo.png" alt="logo" width="256px">
-    <h1>ModBuilder</h1>
-    <h5>Make Minecraft mods easily</h5>
-    <div>
+    <img src="src/assets/icons/logo.png" alt="logo" width="128px">
+    <h1 align="center">ModBuilder</h1>
+    <h5 align="center">Make Minecraft mods easily</h5>
+    <div align="center">
         <img alt="GitHub language count" src="https://img.shields.io/github/languages/count/zmatez/modbuilder?color=%23FF8967">
         <img alt="Lines of code" src="https://img.shields.io/tokei/lines/github/zmatez/modbuilder?color=%23512446">
         <img alt="GitHub issues" src="https://img.shields.io/github/issues/zmatez/modbuilder?color=%23FF8967">
