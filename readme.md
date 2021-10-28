@@ -1,5 +1,5 @@
-<center>
-    <img src="src/assets/icons/logo.png" alt="logo" width="256" height="256">
+<p align="center">
+    <img src="src/assets/icons/logo.png" alt="logo" width="256px">
     <h1>ModBuilder</h1>
     <h5>Make Minecraft mods easily</h5>
     <div>
@@ -11,7 +11,7 @@
         <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/zmatez/modbuilder?color=512446">
         <img alt="GitHub package.json dependency version (dev dep on branch)" src="https://img.shields.io/github/package-json/dependency-version/zmatez/modbuilder/dev/electron?color=FF8967">
     </div>
-</center>
+</p>
 
 ---
 ## What is this for?
