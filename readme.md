@@ -1,5 +1,5 @@
 <center>
-    <img src="src/assets/icons/logo.png" alt="logo">
+    <img src="src/assets/icons/logo.png" alt="logo" width="256" height="256">
     <h1>ModBuilder</h1>
     <h5>Make Minecraft mods easily</h5>
     <div>
