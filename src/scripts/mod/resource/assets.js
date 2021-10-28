@@ -1,11 +1,16 @@
 const explorer = require('../../gui/fileexplorer');
 const {ModUtils, ResourceLocation} = require('../util/modutils');
+const fileOperators = require('../../operation/file-operator');
 
 class ModAssetLoader {
     /**
      * @type Mod
      */
     mod;
+    /**
+     * @type MainController
+     */
+    controller;
     /**
      * @type AbstractFileExplorer
      */
@@ -25,9 +30,11 @@ class ModAssetLoader {
 
     /**
      * @param mod {Mod}
+     * @param controller {MainController}
      */
-    constructor(mod) {
+    constructor(mod, controller) {
         this.mod = mod;
+        this.controller = controller;
     }
 
     serialize(){
@@ -36,8 +43,8 @@ class ModAssetLoader {
         }
     }
 
-    static deserialize(data, mod){
-        let loader =  new ModAssetLoader(mod);
+    static deserialize(data, mod, controller){
+        let loader =  new ModAssetLoader(mod, controller);
         loader.loaded = data.loaded;
         return loader;
     }
@@ -66,6 +73,7 @@ class ModAssetLoader {
 
         this.blocks = fsutils.getUnfolderedResourceList('blockstates','blockstates');
 
+        this.blocks.fileOperator = new fileOperators.FileOperator(this.blocks, this.controller);
 
         LOG.success("Loaded " + this.blocks.allChilds.length + " blockstates");
         this.mod.modLoadingProgress.update('blockstates',this.blocks.allChilds.length);
@@ -153,8 +161,10 @@ class ModAssetLoader {
 
         // * ------------------------------------------------
 
-        let blocksCount = this.registry.countBlocks(true)
-        let modelsCount = this.registry.countBlockModels(true)
+        let blocksCount = this.registry.countBlocks(true);
+        let modelsCount = this.registry.countBlockModels(true);
+
+        this.blockModels.fileOperator = new fileOperators.FileOperator(this.blockModels, this.controller);
 
         LOG.success("Loaded " + modelsCount.count + " (" + modelsCount.valid + " valid) models for " + blocksCount.count + " blocks (" + blocksCount.valid + " valid)")
         this.mod.modLoadingProgress.update('models_block',modelsCount.count);
@@ -198,6 +208,8 @@ class ModAssetLoader {
         }
 
         let count = this.registry.countItems(true);
+
+        this.items.fileOperator = new fileOperators.FileOperator(this.items, this.controller);
 
         LOG.success("Loaded " + count.count + " items (" + count.valid + " valid)");
         this.mod.modLoadingProgress.update('models_item',count.count);
@@ -262,6 +274,8 @@ class ModAssetLoader {
         let texturesCount = this.registry.countTextures()
 
         this.textures = fsutils.getResourceList('textures','texture',mod.modRegistry.textures);
+        this.textures.fileOperator = new fileOperators.FileOperator(this.textures, this.controller);
+
         this.mod.modLoadingProgress.update('textures',texturesCount);
     }
 

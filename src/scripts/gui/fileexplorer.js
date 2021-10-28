@@ -1,3 +1,6 @@
+const fileOperators = require('../operation/file-operator');
+const fsutils = require('../util/fileutils');
+
 class AbstractFileExplorer{
 
     /**
@@ -18,7 +21,12 @@ class AbstractFileExplorer{
      * Used if folder structure is "abstract", and folders are saved only to JSON (blockstates)
      * @type {boolean}
      */
-    requireUnique = false;
+    abstractExplorer = false;
+
+    /**
+     * @type FileOperator | FileOperatorRemote
+     */
+    fileOperator;
 
     /**
      * @return ExplorerParent
@@ -88,14 +96,37 @@ class AbstractFileExplorer{
      */
     createFolder(name, path,parent = null){
         if(path == null && parent == null){
-            path = this.parentPath;
+            path = this.parentPath + "/" + name;
         }
         if(path == null && parent == null){
             return null;
         }
+        console.log("Folder pathx: " + (parent.path + "/" + name));
+        let folder = new Folder(name, path == null ? parent.path + "/" + name : path);
+        console.log("Folder path: " + folder.path);
 
-        let folder = new Folder(name, path == null ? parent.path : path);
-        this.addChild(folder);
+
+        if(!this.abstractExplorer){
+            this.fileOperator.create(folder.path,null,false, (data) => {
+                if(data.success){
+                    //success
+                    if(parent != null){
+                        parent.addChild(folder);
+                    }else {
+                        this.addChild(folder);
+                    }
+                }else{
+                    //fail
+
+                }
+            });
+        }else{
+            if(parent != null){
+                parent.addChild(folder);
+            }else {
+                this.addChild(folder);
+            }
+        }
         return folder;
     }
 
@@ -108,7 +139,7 @@ class AbstractFileExplorer{
             childs.push(child.serialize());
         }
         return {
-            requireUnique: this.requireUnique,
+            abstractExplorer: this.abstractExplorer,
             childs: childs
         }
     }
@@ -160,17 +191,21 @@ class AbstractFileExplorer{
     }
 
     /**
+     * @param controller {RendererController}
      * @param data {{}}
      * @param parent {?HTMLElement}
      * @param callbacks {?{}}
      * @return {AbstractFileExplorer | FileExplorer}
      */
-    static deserialize(data, parent, callbacks){
+    static deserialize(controller, data, parent, callbacks){
         let explorer = null;
         if(parent == null || callbacks == null){
             explorer = new AbstractFileExplorer();
         }else{
             explorer = new FileExplorer(parent, callbacks);
+        }
+        if(controller != null) {
+            explorer.fileOperator = new fileOperators.FileOperatorRemote(explorer, controller);
         }
 
         let childs = [];
@@ -191,14 +226,14 @@ class AbstractFileExplorer{
             explorer.parentPath = data.parentPath;
             explorer.childs = childs;
             explorer.allChilds = allChilds;
-            explorer.requireUnique = data.requireUnique;
+            explorer.abstractExplorer = data.requireUnique;
             return explorer;
         }else{
             explorer.parentPath = data.parentPath;
             explorer.childs = childs;
             explorer.allChilds = allChilds;
             explorer.parent = parent;
-            explorer.requireUnique = data.requireUnique;
+            explorer.abstractExplorer = data.requireUnique;
             return explorer;
         }
     }
@@ -298,7 +333,6 @@ class FileExplorer extends AbstractFileExplorer{
     }
 
     createFolder(name, path, parent = null, callback = null) {
-        console.log("Creating folder " + name);
         let folder = super.createFolder(name, path, parent);
         /*this.renderAsync(() => {
             utils.scrollToElement(this.parent, folder.element);
@@ -400,7 +434,7 @@ class FileExplorer extends AbstractFileExplorer{
      * @param event {Event}
      */
     onClick(element, event){
-        console.log("Click on " + element.getName())
+        console.log("Click on " + element.getName() + ": " + element.path)
         if(this.shiftClicked && this.selected.length > 0){
             let firstClick = this.selected[0];
             let firstClickIndex = firstClick.element.offsetTop;
@@ -469,7 +503,7 @@ class FileExplorer extends AbstractFileExplorer{
         let fileExplorer = new FileExplorer(parent, callbacks);
         fileExplorer.parentPath = explorer.parentPath;
         fileExplorer.childs = explorer.childs;
-        fileExplorer.requireUnique = explorer.requireUnique;
+        fileExplorer.abstractExplorer = explorer.abstractExplorer;
         return fileExplorer;
     }
 }
@@ -508,7 +542,7 @@ class ExplorerParent{
      */
     constructor(name, path) {
         this.name = name;
-        this.path = path;
+        this.path = fsutils.normalizePath(path);
     }
 
     /**
@@ -1205,6 +1239,7 @@ class BlockModelFile extends OpenableFile{
             icon.style.filter = 'saturate(0.4)';
             iconPreview.style.filter = 'saturate(0.2)';
         }
+        utils.addChild(this.element,icon,iconPreview);
 
         this.text = document.createElement('span');
         this.text.classList.add('title');
@@ -1367,6 +1402,10 @@ class TextureFile extends OpenableFile{
         utils.addChild(this.element, errors);
 
         return this.element;
+    }
+
+    onClick(event) {
+        super.onClick(event);
     }
 }
 module.exports.TextureFile = TextureFile;

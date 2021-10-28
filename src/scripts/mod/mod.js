@@ -99,12 +99,13 @@ class Mod extends IMod{
     /**
      * @param config {ModData}
      * @param transferCallback {function(string)} used to transfer registry client<->server
+     * @param controller {MainController}
      */
-    constructor(config, transferCallback) {
+    constructor(config, transferCallback, controller) {
         super(config,transferCallback);
         this.tomlPath = this.path + "/META-INF/mods.toml";
 
-        this.assetLoader = new assets.ModAssetLoader(this);
+        this.assetLoader = new assets.ModAssetLoader(this,controller);
     }
 
     /**
@@ -221,10 +222,10 @@ class Mod extends IMod{
         }
     }
 
-    static deserialize(data, transferCallback) {
-        let mod = new Mod(data.config, transferCallback);
+    static deserialize(data, transferCallback, controller) {
+        let mod = new Mod(data.config, transferCallback, controller);
         mod.tomlConfig = data.tomlConfig;
-        mod.assetLoader = assets.ModAssetLoader.deserialize(data.assetLoader, mod);
+        mod.assetLoader = assets.ModAssetLoader.deserialize(data.assetLoader, mod, controller);
         return mod;
     }
 }

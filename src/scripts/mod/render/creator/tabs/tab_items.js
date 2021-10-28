@@ -152,7 +152,7 @@ class TabItems extends ITab{
                         }));
                         items.push(new contextmenu.ImageButtonContextItem("Folder", utils.getIcon('folder.svg'), () => {
                             contextMenu.close();
-                            this.controller.sendMessage('modal:create_folder', {explorer: 'block', index: this.explorer.allChilds.indexOf(parent)});
+                            this.controller.sendMessage('modal:create_folder', {explorer: 'item', index: this.explorer.allChilds.indexOf(parent)});
                         },true));
                     }));
                     //
@@ -186,7 +186,7 @@ class TabItems extends ITab{
                             }));
                             items.push(new contextmenu.ImageButtonContextItem("Folder", utils.getIcon('folder.svg'), () => {
                                 contextMenu.close();
-                                this.controller.sendMessage('modal:create_folder', {explorer: 'block', index: this.explorer.allChilds.indexOf(parent)});
+                                this.controller.sendMessage('modal:create_folder', {explorer: 'item', index: this.explorer.allChilds.indexOf(parent)});
                             },true));
                         }));
                         //

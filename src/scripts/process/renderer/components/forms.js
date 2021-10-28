@@ -599,6 +599,10 @@ class Button{
         this.disabled = disable;
         this.button.disabled = this.disabled;
     }
+
+    trigger(){
+        this.button.click();
+    }
 }
 
 module.exports.el.Button = Button;

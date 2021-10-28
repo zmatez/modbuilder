@@ -99,7 +99,7 @@ class MCImport extends MainController{
             LOG.debug("Received " + JSON.stringify(data));
 
             cfg.importModData(data['path'], (modData) => {
-
+                this.listenerOpenMain(event);
             })
         }
 

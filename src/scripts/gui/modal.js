@@ -168,7 +168,9 @@ class ModalController{
      * @private
      */
     trigger(actionName, data){
-        this.actions[actionName](data);
+        if(this.actions[actionName] != null) {
+            this.actions[actionName](data);
+        }
     }
 
     /**
@@ -312,7 +314,7 @@ class InfoModal extends ModalRenderer{
     draw(parent, id, data) {
         let icon = document.createElement('img');
         icon.classList.add("modal-icon");
-        icon.src = "../../../assets/icons/" + data['icon'];
+        icon.src = "../../../../assets/icons/" + data['icon'];
         utils.addChild(parent, icon);
 
         let title = document.createElement('div');
@@ -532,6 +534,7 @@ class TextModal extends ModalRenderer{
         }
         form.addEntry(input);
         form.pop();
+        input.element.focus();
 
         //--------
         let buttons = document.createElement('div');
@@ -571,5 +574,11 @@ class TextModal extends ModalRenderer{
 
         okButton.addTo(buttons);
         cancelButton.addTo(buttons);
+
+        parent.addEventListener('keypress', (e) => {
+            if(e.key === "Enter"){
+                okButton.trigger();
+            }
+        })
     }
 }

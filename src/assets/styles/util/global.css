@@ -436,6 +436,7 @@
   height: 30px;
   transition: opacity 0.2s ease-in-out;
   opacity: 0;
+  object-fit: contain;
 }
 .tab-holder .tab.animated-image-tab .icon-holder img.img-grayscale {
   filter: invert(0.7);

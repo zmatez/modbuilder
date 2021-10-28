@@ -221,7 +221,7 @@ class FileUtils{
         let oldExplorer = explorer;
         let configData = mod.config.json[configDataName];
         if (configData != null) {
-            oldExplorer = e.AbstractFileExplorer.deserialize(configData, null, null);
+            oldExplorer = e.AbstractFileExplorer.deserialize(null,configData, null, null);
 
             //everything on explorer json should be the same as in blocks, just without folders
             //if it isn't remove or add item

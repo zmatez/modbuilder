@@ -84,7 +84,7 @@ class MCCreate extends MainController{
             LOG.debug("Received " + JSON.stringify(data));
 
             cfg.createModData(data['path'],data['name'],data['codename'], (modData) => {
-
+                this.listenerOpenMain(event);
             })
         }
 

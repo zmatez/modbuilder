@@ -123,6 +123,10 @@ class CreatorController extends RendererController{
         const tab_textures = require('../../../mod/render/creator/tabs/tab_textures');
         let tabTextures = this.createTab(new tab_textures.TabTextures(this));
         tabTextures.construct();
+        // ? --- REGISTRY
+        const tab_registry = require('../../../mod/render/creator/tabs/tab_registry');
+        let tabRegistry = this.createTab(new tab_registry.TabRegistry(this));
+        tabRegistry.construct();
         /*
         // ? --- RECIPES
         let tabRecipes = new tabpane.ImageTab('Recipes','recipes-gray.svg','tab-editor','tab-recipes');
@@ -161,7 +165,7 @@ class CreatorController extends RendererController{
              */
             global.mod = _mod.Mod.deserialize(data, () => {
                 //todo transferCallback ?
-            })
+            }, this);
         });
 
         this.receive('data:registry', (data) => {
@@ -171,10 +175,10 @@ class CreatorController extends RendererController{
 
         this.receive('data:render', (data) => {
             console.log("Rendering")
-            this.explorers.block = explorer.FileExplorer.deserialize(data.blockstates, this.tabExplorers.block, this.callbacks.block);
-            this.explorers.blockModel = explorer.FileExplorer.deserialize(data.blockModels, this.tabExplorers.blockModel, this.callbacks.blockModel);
-            this.explorers.item = explorer.FileExplorer.deserialize(data.items, this.tabExplorers.item, this.callbacks.item);
-            this.explorers.texture = explorer.FileExplorer.deserialize(data.textures, this.tabExplorers.texture, this.callbacks.texture);
+            this.explorers.block = explorer.FileExplorer.deserialize(this,data.blockstates, this.tabExplorers.block, this.callbacks.block);
+            this.explorers.blockModel = explorer.FileExplorer.deserialize(this,data.blockModels, this.tabExplorers.blockModel, this.callbacks.blockModel);
+            this.explorers.item = explorer.FileExplorer.deserialize(this,data.items, this.tabExplorers.item, this.callbacks.item);
+            this.explorers.texture = explorer.FileExplorer.deserialize(this,data.textures, this.tabExplorers.texture, this.callbacks.texture);
 
 
             this.explorers.block.renderAsync(() => {
@@ -183,17 +187,17 @@ class CreatorController extends RendererController{
             });
 
             this.explorers.blockModel.renderAsync(() => {
-                //this.callbacks.blockModel.render(this.explorers.blockModel);
+                this.callbacks.blockModel.render(this.explorers.blockModel);
                 update(this.assetProgress);
             });
 
             this.explorers.item.renderAsync(() => {
-                //this.callbacks.item.render(this.explorers.item);
+                this.callbacks.item.render(this.explorers.item);
                 update(this.assetProgress);
             });
 
             this.explorers.texture.renderAsync(() => {
-                //this.callbacks.texture.render(this.explorers.texture);
+                this.callbacks.texture.render(this.explorers.texture);
                 update(this.assetProgress);
             });
 
@@ -224,7 +228,7 @@ class CreatorController extends RendererController{
 
         // ? CREATE FOLDER
         this.receive('modal:create_folder', (data) => {
-            let explorer = data.origin.explorer;
+            let expl = data.origin.explorer;
             let index = data.origin.index;
 
             /**
@@ -232,7 +236,7 @@ class CreatorController extends RendererController{
              */
             let rex;
 
-            switch (explorer){
+            switch (expl){
                 case "block":
                     rex = this.explorers.block;
                     break;
@@ -249,7 +253,13 @@ class CreatorController extends RendererController{
 
             if(rex != null){
                 let parent = rex.allChilds[index];
-                rex.createFolder(data.data,null,parent);
+                let path = null;
+
+                if(!(parent instanceof explorer.Folder)){
+                    path = (parent.path.substring(0, parent.path.lastIndexOf("/"))) + "/" + data.data;
+                    parent = null;
+                }
+                rex.createFolder(data.data,path,parent);
             }
         })
     }

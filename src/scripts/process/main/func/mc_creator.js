@@ -2,6 +2,7 @@
 const MainController = require('../../../init/controller_main.js');
 const {AbstractFileExplorer} = require("../../../gui/fileexplorer");
 const resources = require('../../../mod/resource/resources');
+const fileOperators = require('../../../operation/file-operator');
 
 class MCCreator extends MainController{
     /**
@@ -30,7 +31,7 @@ class MCCreator extends MainController{
         }
         this.mod = new Mod(modData, (registry) => {
             this.sendMessage('data:registry', registry);
-        });
+        },this);
         this.receive('data:registry', (registry) => {
             this.mod.modRegistry.deserialize(registry);
         })

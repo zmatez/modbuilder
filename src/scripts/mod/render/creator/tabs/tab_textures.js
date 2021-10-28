@@ -152,7 +152,7 @@ class TabTextures extends ITab{
                         }));
                         items.push(new contextmenu.ImageButtonContextItem("Folder", utils.getIcon('folder.svg'), () => {
                             contextMenu.close();
-                            this.controller.sendMessage('modal:create_folder', {explorer: 'block', index: this.explorer.allChilds.indexOf(parent)});
+                            this.controller.sendMessage('modal:create_folder', {explorer: 'texture', index: this.explorer.allChilds.indexOf(parent)});
                         },true));
                     }));
                     //
@@ -186,7 +186,7 @@ class TabTextures extends ITab{
                             }));
                             items.push(new contextmenu.ImageButtonContextItem("Folder", utils.getIcon('folder.svg'), () => {
                                 contextMenu.close();
-                                this.controller.sendMessage('modal:create_folder', {explorer: 'block', index: this.explorer.allChilds.indexOf(parent)});
+                                this.controller.sendMessage('modal:create_folder', {explorer: 'texture', index: this.explorer.allChilds.indexOf(parent)});
                             },true));
                         }));
                         //
@@ -194,6 +194,9 @@ class TabTextures extends ITab{
                         //
                         items.push(new contextmenu.ButtonContextItem(parent.collapsed ? "Show contents" : "Collapse contents", () => {
 
+                        }));
+                        items.push(new contextmenu.ButtonContextItem("Open in explorer", () => {
+                            require('child_process').exec(`start "" "${parent.path}"`);
                         }));
                         //
                         items.push(new contextmenu.ButtonContextItem("Rename", () => {

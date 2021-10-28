@@ -11,7 +11,8 @@
   "author": "matez",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^13.1.4"
+    "electron": "^13.1.4",
+    "electron-packager": "^15.4.0"
   },
   "dependencies": {
     "@iarna/toml": "^2.2.5",
