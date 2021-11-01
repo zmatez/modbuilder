@@ -334,7 +334,7 @@ class BlockTab extends tabpane.ElementTab{
             utils.addChild(section, holder)
         }, element);
 
-        modutils.createRegistrySection('Modify', section => {
+        modutils.createRegistrySection('Information', section => {
             let form = new Form(section);
             form.push();
             let name = new forms.FormField('name', "Name");
@@ -342,6 +342,15 @@ class BlockTab extends tabpane.ElementTab{
             let displayName = new forms.FormField('display_name','Display Name');//todo display name
             displayName.bottomHTML = "More languages are available in Languages tab.";
             form.addEntries(name, displayName);
+            form.pop()
+        }, element);
+
+        modutils.createRegistrySection('Registry', section => {
+            let form = new Form(section);
+            form.push();
+            let constructor = new forms.FormField('constructor', "Constructor");
+            constructor.setValue("");
+            form.addEntries(constructor);
             form.pop()
         }, element);
     }

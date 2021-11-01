@@ -1,0 +1,37 @@
+.setting-section{
+    background-color: var(--color-background-2);
+    padding: 4px 8px;
+    font-size: 16px;
+    color: var(--color-accent-2)
+}
+
+.resources-panel{
+    margin: 5px;
+    padding: 8px;
+    border-radius: 10px;
+    background-color: var(--color-background-2);
+    display: flex;
+    flex-flow: column;
+
+    h4{
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .resources-description{
+        margin: 0 0 5px;
+        padding-bottom: 10px;
+        font-size: 14px;
+        border-bottom: 2px solid var(--color-background);
+    }
+
+    .resources-status{
+        margin: 0;
+        color: var(--color-status-fail-bright);
+        font-size: 13px;
+    }
+
+    .resources-table{
+        
+    }
+}

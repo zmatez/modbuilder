@@ -104,6 +104,9 @@ class CreatorController extends RendererController{
         // ? ---------------------------------------- MENU -----------
         this.menuPane = new tabpane.PanelTabPane();
         this.menuPane.push(utils.byClass('menu-panel'), utils.byClass('menu-content'));
+        // ? --- SETTINGS
+        const tab_settings = require('../../../mod/render/creator/tabs/tab_settings');
+        let tabSettings = this.createTab(new tab_settings.TabSettings(this));
         // ? --- ABOUT
         const tab_about = require('../../../mod/render/creator/tabs/tab_about');
         let tabAbout = this.createTab(new tab_about.TabAbout(this));
@@ -156,6 +159,10 @@ class CreatorController extends RendererController{
         this.receive('data:about', (data) => {
             tabAbout.data = data;
             tabAbout.construct()
+        })
+        this.receive('data:settings', (data) => {
+            tabSettings.data = data;
+            tabSettings.construct()
         })
 
         this.receive('data:assets',(data) => {
