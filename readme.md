@@ -85,7 +85,7 @@ I've listed few uncompleted things that need to be done before full usability of
     
 ### Contribution tips
 - Find cool icons on [FlatIcon](https://flaticon.com)
-- mc_* files are for client, while rc_* files are for renderer processes (Electron shit...)
+- mc_* files are for client, while rc_* files are for renderer processes (Electron sh*t...)
 
 ---
 ## License
@@ -93,5 +93,5 @@ Project uses **MIT license**.
 
 ---
 ## Donate
-Buy me a coffee! I'm not even adult so any money sent makes me smile :)  
+Buy me a coffee!
 [Donate by PayPal](https://www.paypal.com/donate?hosted_button_id=XX8SZ8BY9B4J6)
